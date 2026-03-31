@@ -1,6 +1,6 @@
-// ============================================================
-// PumpCtrl API  —  server.js
-// One file. No subfolders. Easy to read and debug.
+// =============================================================
+// PumpCtrl API  —  api/index.js
+// Vercel serverless function. Export `app` — do NOT call listen().
 //
 // ENDPOINTS:
 //   GET    /health
@@ -12,60 +12,82 @@
 //   GET    /sensors/latest
 //   GET    /sensors/history        query: ?limit=50
 //   DELETE /sensors/clear
-// ============================================================
+// =============================================================
 require('dotenv').config();
 const express  = require('express');
 const mongoose = require('mongoose');
 const cors     = require('cors');
 
-const app  = express();
-const PORT = process.env.PORT;
+const app = express();
 
-// ── PUT YOUR MONGODB URI HERE ────────────────────────────────
-const MONGODB_URI = process.env.MONGODB_URI;  
-// ─────────────────────────────────────────────────────────────
+// ── MONGODB URI ───────────────────────────────────────────────
+// Set MONGODB_URI in Vercel Environment Variables (Project → Settings → Environment Variables)
+// Fallback is hardcoded so it also works locally with `node api/index.js`
+const MONGODB_URI = process.env.MONGODB_URI
 
-// ── MIDDLEWARE ───────────────────────────────────────────────
+// ── MONGOOSE CONNECTION (serverless-safe) ─────────────────────
+// Vercel functions are stateless — a new instance may spin up on each request.
+// We cache the connection on `global` so warm instances reuse it.
+let isConnected = false;
+
+async function connectDB() {
+  if (isConnected && mongoose.connection.readyState === 1) return;
+  await mongoose.connect(MONGODB_URI, {
+    serverSelectionTimeoutMS: 5000,
+    bufferCommands: false,
+  });
+  isConnected = true;
+}
+
+// ── MODELS ────────────────────────────────────────────────────
+const SensorReading = mongoose.models.SensorReading ||
+  mongoose.model('SensorReading', new mongoose.Schema({
+    flow_rate:   { type: Number, required: true },
+    temperature: { type: Number, required: true },
+    pressure:    { type: Number, required: true },
+    timestamp:   { type: Date, default: Date.now },
+  }));
+
+const ActuatorState = mongoose.models.ActuatorState ||
+  mongoose.model('ActuatorState', new mongoose.Schema({
+    device_id:      { type: String, default: 'main' },
+    air_pump_pwm:   { type: Number, default: 0 },
+    water_pump_pwm: { type: Number, default: 0 },
+    valve_state:    { type: String, default: 'closed' },
+    updated_at:     { type: Date, default: Date.now },
+  }));
+
+// ── MIDDLEWARE ────────────────────────────────────────────────
 app.use(cors());
 app.use(express.json());
 
-// ── MONGODB MODELS ───────────────────────────────────────────
+// Connect to DB before every request
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    res.status(503).json({ success: false, error: 'Database connection failed: ' + err.message });
+  }
+});
 
-// Stores one snapshot of all three sensor values
-const SensorReading = mongoose.model('SensorReading', new mongoose.Schema({
-  flow_rate:   { type: Number, required: true },
-  temperature: { type: Number, required: true },
-  pressure:    { type: Number, required: true },
-  timestamp:   { type: Date,   default: Date.now },
-}));
-
-// Singleton document — holds the last commanded actuator state
-const ActuatorState = mongoose.model('ActuatorState', new mongoose.Schema({
-  device_id:      { type: String, default: 'main' },
-  air_pump_pwm:   { type: Number, default: 0 },
-  water_pump_pwm: { type: Number, default: 0 },
-  valve_state:    { type: String, default: 'closed' },
-  updated_at:     { type: Date,   default: Date.now },
-}));
-
-// ── HEALTH ───────────────────────────────────────────────────
+// ── GET /health ───────────────────────────────────────────────
 app.get('/health', (req, res) => {
   const states = { 0: 'disconnected', 1: 'connected', 2: 'connecting', 3: 'disconnecting' };
   res.json({
     status:    'ok',
     db:        states[mongoose.connection.readyState] || 'unknown',
-    uptime_s:  Math.round(process.uptime()),
     timestamp: new Date().toISOString(),
   });
 });
 
-// ── POST /control/air-pump ───────────────────────────────────
+// ── POST /control/air-pump ────────────────────────────────────
 app.post('/control/air-pump', async (req, res) => {
   try {
     const pwm = parseInt(req.body.pwm, 10);
-    if (isNaN(pwm) || pwm < 0 || pwm > 255) {
+    if (isNaN(pwm) || pwm < 0 || pwm > 255)
       return res.status(400).json({ success: false, error: 'pwm must be an integer 0-255' });
-    }
+
     await ActuatorState.findOneAndUpdate(
       { device_id: 'main' },
       { air_pump_pwm: pwm, updated_at: new Date() },
@@ -77,13 +99,13 @@ app.post('/control/air-pump', async (req, res) => {
   }
 });
 
-// ── POST /control/water-pump ─────────────────────────────────
+// ── POST /control/water-pump ──────────────────────────────────
 app.post('/control/water-pump', async (req, res) => {
   try {
     const pwm = parseInt(req.body.pwm, 10);
-    if (isNaN(pwm) || pwm < 0 || pwm > 255) {
+    if (isNaN(pwm) || pwm < 0 || pwm > 255)
       return res.status(400).json({ success: false, error: 'pwm must be an integer 0-255' });
-    }
+
     await ActuatorState.findOneAndUpdate(
       { device_id: 'main' },
       { water_pump_pwm: pwm, updated_at: new Date() },
@@ -95,13 +117,13 @@ app.post('/control/water-pump', async (req, res) => {
   }
 });
 
-// ── POST /control/valve ──────────────────────────────────────
+// ── POST /control/valve ───────────────────────────────────────
 app.post('/control/valve', async (req, res) => {
   try {
     const state = (req.body.state || '').toLowerCase();
-    if (state !== 'open' && state !== 'closed') {
+    if (state !== 'open' && state !== 'closed')
       return res.status(400).json({ success: false, error: 'state must be "open" or "closed"' });
-    }
+
     await ActuatorState.findOneAndUpdate(
       { device_id: 'main' },
       { valve_state: state, updated_at: new Date() },
@@ -113,13 +135,13 @@ app.post('/control/valve', async (req, res) => {
   }
 });
 
-// ── GET /control/state ───────────────────────────────────────
+// ── GET /control/state ────────────────────────────────────────
 app.get('/control/state', async (req, res) => {
   try {
     const doc = await ActuatorState.findOne({ device_id: 'main' }).lean();
-    if (!doc) {
+    if (!doc)
       return res.json({ success: true, air_pump_pwm: 0, water_pump_pwm: 0, valve_state: 'closed', updated_at: null });
-    }
+
     res.json({
       success:        true,
       air_pump_pwm:   doc.air_pump_pwm,
@@ -132,25 +154,19 @@ app.get('/control/state', async (req, res) => {
   }
 });
 
-// ── POST /sensors/reading ────────────────────────────────────
+// ── POST /sensors/reading ─────────────────────────────────────
 app.post('/sensors/reading', async (req, res) => {
   try {
     const { flow_rate, temperature, pressure } = req.body;
 
-    // All three required
-    if (flow_rate === undefined || flow_rate === null)
-      return res.status(400).json({ success: false, error: 'flow_rate is required' });
-    if (temperature === undefined || temperature === null)
-      return res.status(400).json({ success: false, error: 'temperature is required' });
-    if (pressure === undefined || pressure === null)
-      return res.status(400).json({ success: false, error: 'pressure is required' });
+    if (flow_rate  == null) return res.status(400).json({ success: false, error: 'flow_rate is required' });
+    if (temperature == null) return res.status(400).json({ success: false, error: 'temperature is required' });
+    if (pressure   == null) return res.status(400).json({ success: false, error: 'pressure is required' });
 
-    // Range check 0-1000
     for (const [key, val] of [['flow_rate', flow_rate], ['temperature', temperature], ['pressure', pressure]]) {
       const n = parseFloat(val);
-      if (isNaN(n) || n < 0 || n > 1000) {
+      if (isNaN(n) || n < 0 || n > 1000)
         return res.status(400).json({ success: false, error: `${key} must be a number between 0 and 1000` });
-      }
     }
 
     const doc = await SensorReading.create({
@@ -172,13 +188,13 @@ app.post('/sensors/reading', async (req, res) => {
   }
 });
 
-// ── GET /sensors/latest ──────────────────────────────────────
+// ── GET /sensors/latest ───────────────────────────────────────
 app.get('/sensors/latest', async (req, res) => {
   try {
     const doc = await SensorReading.findOne().sort({ timestamp: -1 }).lean();
-    if (!doc) {
+    if (!doc)
       return res.status(404).json({ success: false, error: 'No sensor readings found' });
-    }
+
     res.json({
       success:     true,
       id:          doc._id,
@@ -192,7 +208,7 @@ app.get('/sensors/latest', async (req, res) => {
   }
 });
 
-// ── GET /sensors/history ─────────────────────────────────────
+// ── GET /sensors/history ──────────────────────────────────────
 app.get('/sensors/history', async (req, res) => {
   try {
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 100));
@@ -217,7 +233,7 @@ app.get('/sensors/history', async (req, res) => {
   }
 });
 
-// ── DELETE /sensors/clear ────────────────────────────────────
+// ── DELETE /sensors/clear ─────────────────────────────────────
 app.delete('/sensors/clear', async (req, res) => {
   try {
     const result = await SensorReading.deleteMany({});
@@ -227,16 +243,5 @@ app.delete('/sensors/clear', async (req, res) => {
   }
 });
 
-// ── START ────────────────────────────────────────────────────
-mongoose.connect(MONGODB_URI)
-  .then(() => {
-    console.log('[DB] Connected to MongoDB Atlas');
-    app.listen(PORT, () => {
-      console.log(`[API] Running at http://localhost:${PORT}`);
-      console.log(`[API] Test it: http://localhost:${PORT}/health`);
-    });
-  })
-  .catch(err => {
-    console.error('[DB] Connection failed:', err.message);
-    process.exit(1);
-  });
+// ── EXPORT (Vercel needs this — do NOT call app.listen) ───────
+module.exports = app;
