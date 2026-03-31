@@ -1,0 +1,323 @@
+{
+  "info": {
+    "name": "PumpCtrl API",
+    "description": "Complete Postman collection for the PumpCtrl API.\n\nBase URL variable: {{base_url}} — set this to http://localhost:3000\n\nEndpoints:\n  ACTUATOR CONTROL\n    POST   /control/air-pump       Set air pump PWM (0–255)\n    POST   /control/water-pump     Set water pump PWM (0–255)\n    POST   /control/valve          Open or close solenoid valve\n    GET    /control/state          Read current actuator state\n\n  SENSOR DATA\n    POST   /sensors/reading        Push sensor snapshot to DB\n    GET    /sensors/latest         Get most recent reading\n    GET    /sensors/history        Get last N readings\n    DELETE /sensors/clear          Wipe all readings\n\n  UTILITY\n    GET    /health                 Server + DB health check\n    GET    /                       Endpoint directory",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "description": "Change this to match your running server address"
+    }
+  ],
+  "item": [
+    {
+      "name": "Actuator Control",
+      "item": [
+        {
+          "name": "Set Air Pump PWM",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/control/air-pump", "host": ["{{base_url}}"], "path": ["control", "air-pump"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pwm\": 128\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Set the air pump speed via PWM.\n\nField:\n  pwm  integer  0 = off, 255 = full speed\n\nValid examples:\n  { \"pwm\": 0 }    — stop pump\n  { \"pwm\": 128 }  — half speed\n  { \"pwm\": 255 }  — full speed\n\nError cases:\n  { \"pwm\": -1 }   — 400 INVALID_PWM\n  { \"pwm\": 256 }  — 400 INVALID_PWM\n  { \"pwm\": \"fast\" } — 400 INVALID_PWM"
+          },
+          "response": [
+            {
+              "name": "200 OK — PWM set",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"message\": \"Air pump PWM updated\",\n    \"air_pump_pwm\": 128,\n    \"updated_at\": \"2025-01-15T10:30:00.000Z\"\n  },\n  \"meta\": {\n    \"request_id\": \"req-a1b2c3d4\",\n    \"timestamp_utc\": \"2025-01-15T10:30:00.000Z\"\n  }\n}"
+            },
+            {
+              "name": "400 Bad Request — PWM out of range",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"INVALID_PWM\",\n    \"message\": \"pwm must be an integer 0\\u2013255\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Set Water Pump PWM",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/control/water-pump", "host": ["{{base_url}}"], "path": ["control", "water-pump"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pwm\": 200\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Set the water pump speed via PWM.\n\nField:\n  pwm  integer  0 = off, 255 = full speed\n\nValid examples:\n  { \"pwm\": 0 }    — stop pump\n  { \"pwm\": 200 }  — ~78% speed\n  { \"pwm\": 255 }  — full speed"
+          },
+          "response": [
+            {
+              "name": "200 OK — PWM set",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"message\": \"Water pump PWM updated\",\n    \"water_pump_pwm\": 200,\n    \"updated_at\": \"2025-01-15T10:30:05.000Z\"\n  },\n  \"meta\": {\n    \"request_id\": \"req-e5f6a7b8\",\n    \"timestamp_utc\": \"2025-01-15T10:30:05.000Z\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Open Valve",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/control/valve", "host": ["{{base_url}}"], "path": ["control", "valve"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"state\": \"open\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Open the solenoid valve.\n\nField:\n  state  string  Must be exactly \"open\" or \"closed\"\n\nValid examples:\n  { \"state\": \"open\" }    — open valve\n  { \"state\": \"closed\" }  — close valve\n\nError cases:\n  { \"state\": \"on\" }      — 400 INVALID_STATE\n  { \"state\": \"\" }        — 400 INVALID_STATE"
+          },
+          "response": [
+            {
+              "name": "200 OK — Valve opened",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"message\": \"Valve state updated\",\n    \"valve_state\": \"open\",\n    \"updated_at\": \"2025-01-15T10:30:10.000Z\"\n  },\n  \"meta\": {\n    \"request_id\": \"req-c9d0e1f2\",\n    \"timestamp_utc\": \"2025-01-15T10:30:10.000Z\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Close Valve",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/control/valve", "host": ["{{base_url}}"], "path": ["control", "valve"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"state\": \"closed\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Close the solenoid valve."
+          },
+          "response": [
+            {
+              "name": "200 OK — Valve closed",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"message\": \"Valve state updated\",\n    \"valve_state\": \"closed\",\n    \"updated_at\": \"2025-01-15T10:30:15.000Z\"\n  },\n  \"meta\": {\n    \"request_id\": \"req-a3b4c5d6\",\n    \"timestamp_utc\": \"2025-01-15T10:30:15.000Z\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Current Actuator State",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/control/state", "host": ["{{base_url}}"], "path": ["control", "state"] },
+            "description": "Read the current commanded state of all three actuators.\n\nUse this from hardware on boot to sync before doing anything.\nReturns defaults (all off / valve closed) if no command has ever been sent."
+          },
+          "response": [
+            {
+              "name": "200 OK — Current state",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"air_pump_pwm\": 128,\n    \"water_pump_pwm\": 200,\n    \"valve_state\": \"open\",\n    \"updated_at\": \"2025-01-15T10:30:10.000Z\"\n  },\n  \"meta\": {\n    \"request_id\": \"req-g7h8i9j0\",\n    \"timestamp_utc\": \"2025-01-15T10:30:20.000Z\"\n  }\n}"
+            },
+            {
+              "name": "200 OK — No commands yet (defaults)",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"air_pump_pwm\": 0,\n    \"water_pump_pwm\": 0,\n    \"valve_state\": \"closed\",\n    \"updated_at\": null\n  },\n  \"meta\": {\n    \"request_id\": \"req-k1l2m3n4\",\n    \"timestamp_utc\": \"2025-01-15T10:30:20.000Z\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Sensor Data",
+      "item": [
+        {
+          "name": "POST Sensor Reading",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/sensors/reading", "host": ["{{base_url}}"], "path": ["sensors", "reading"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"flow_rate\": 425.5,\n  \"temperature\": 312.0,\n  \"pressure\": 780.3\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Submit a sensor reading from hardware. All three values are required.\nStored in MongoDB and immediately visible on the dashboard.\n\nFields:\n  flow_rate    number  0–1000\n  temperature  number  0–1000\n  pressure     number  0–1000\n\nValid examples:\n  { \"flow_rate\": 0, \"temperature\": 0, \"pressure\": 0 }          — all zeroes\n  { \"flow_rate\": 500, \"temperature\": 250, \"pressure\": 750 }      — mid-range\n  { \"flow_rate\": 999.9, \"temperature\": 1000, \"pressure\": 0.1 }  — edge values\n\nError cases:\n  Missing field:     400 MISSING_FIELD\n  Value > 1000:      400 OUT_OF_RANGE\n  Non-numeric:       400 MISSING_FIELD"
+          },
+          "response": [
+            {
+              "name": "201 Created — Reading saved",
+              "status": "Created",
+              "code": 201,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"64f3a1b2c3d4e5f6a7b8c9d0\",\n    \"flow_rate\": 425.5,\n    \"temperature\": 312.0,\n    \"pressure\": 780.3,\n    \"timestamp\": \"2025-01-15T10:31:00.000Z\"\n  },\n  \"meta\": {\n    \"request_id\": \"req-o5p6q7r8\",\n    \"timestamp_utc\": \"2025-01-15T10:31:00.000Z\"\n  }\n}"
+            },
+            {
+              "name": "400 Bad Request — Missing field",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"MISSING_FIELD\",\n    \"message\": \"'pressure' is required and must be a number\"\n  }\n}"
+            },
+            {
+              "name": "400 Bad Request — Value out of range",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"OUT_OF_RANGE\",\n    \"message\": \"'flow_rate' must be between 0 and 1000 (got 1500)\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET Latest Reading",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/sensors/latest", "host": ["{{base_url}}"], "path": ["sensors", "latest"] },
+            "description": "Returns the single most recent sensor reading from the database.\n\nReturns 404 if no readings exist yet."
+          },
+          "response": [
+            {
+              "name": "200 OK — Latest reading",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"64f3a1b2c3d4e5f6a7b8c9d0\",\n    \"flow_rate\": 425.5,\n    \"temperature\": 312.0,\n    \"pressure\": 780.3,\n    \"timestamp\": \"2025-01-15T10:31:00.000Z\"\n  },\n  \"meta\": {\n    \"request_id\": \"req-s9t0u1v2\",\n    \"timestamp_utc\": \"2025-01-15T10:31:05.000Z\"\n  }\n}"
+            },
+            {
+              "name": "404 Not Found — No readings yet",
+              "status": "Not Found",
+              "code": 404,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"NO_DATA\",\n    \"message\": \"No sensor readings found\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET Sensor History (last 100)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/sensors/history?limit=100",
+              "host": ["{{base_url}}"],
+              "path": ["sensors", "history"],
+              "query": [{ "key": "limit", "value": "100", "description": "Number of records to return (1–100, default 100)" }]
+            },
+            "description": "Returns up to the last 100 sensor readings, newest first.\n\nQuery parameter:\n  limit  integer  1–100, default 100\n\nExamples:\n  /sensors/history           — last 100 readings\n  /sensors/history?limit=10  — last 10 readings\n  /sensors/history?limit=1   — same as /sensors/latest but wrapped in an array"
+          },
+          "response": [
+            {
+              "name": "200 OK — History array",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"id\": \"64f3a1b2c3d4e5f6a7b8c9d2\",\n      \"flow_rate\": 430.0,\n      \"temperature\": 315.5,\n      \"pressure\": 782.1,\n      \"timestamp\": \"2025-01-15T10:32:00.000Z\"\n    },\n    {\n      \"id\": \"64f3a1b2c3d4e5f6a7b8c9d1\",\n      \"flow_rate\": 427.2,\n      \"temperature\": 313.8,\n      \"pressure\": 781.0,\n      \"timestamp\": \"2025-01-15T10:31:30.000Z\"\n    },\n    {\n      \"id\": \"64f3a1b2c3d4e5f6a7b8c9d0\",\n      \"flow_rate\": 425.5,\n      \"temperature\": 312.0,\n      \"pressure\": 780.3,\n      \"timestamp\": \"2025-01-15T10:31:00.000Z\"\n    }\n  ],\n  \"meta\": {\n    \"request_id\": \"req-w3x4y5z6\",\n    \"timestamp_utc\": \"2025-01-15T10:32:05.000Z\"\n  }\n}"
+            },
+            {
+              "name": "200 OK — Empty (no readings)",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": [],\n  \"meta\": {\n    \"request_id\": \"req-a7b8c9d0\",\n    \"timestamp_utc\": \"2025-01-15T10:32:05.000Z\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET Sensor History (last 10)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/sensors/history?limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["sensors", "history"],
+              "query": [{ "key": "limit", "value": "10" }]
+            },
+            "description": "Get the last 10 readings only."
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE Clear All Readings",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{base_url}}/sensors/clear", "host": ["{{base_url}}"], "path": ["sensors", "clear"] },
+            "description": "Permanently deletes ALL sensor readings from the database.\n\nThis is irreversible. The dashboard will reset to zero after the next poll.\nNo body required — just send the DELETE request."
+          },
+          "response": [
+            {
+              "name": "200 OK — All cleared",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"message\": \"All sensor readings deleted\",\n    \"deleted_count\": 47\n  },\n  \"meta\": {\n    \"request_id\": \"req-e1f2g3h4\",\n    \"timestamp_utc\": \"2025-01-15T10:35:00.000Z\"\n  }\n}"
+            },
+            {
+              "name": "200 OK — Nothing to clear",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"message\": \"All sensor readings deleted\",\n    \"deleted_count\": 0\n  },\n  \"meta\": {\n    \"request_id\": \"req-i5j6k7l8\",\n    \"timestamp_utc\": \"2025-01-15T10:35:00.000Z\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Utility",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/health", "host": ["{{base_url}}"], "path": ["health"] },
+            "description": "Returns server status and MongoDB connectivity.\n\nGood first request to confirm the server is up and the DB is connected.\nCheck the 'db' field — should be 'connected'."
+          },
+          "response": [
+            {
+              "name": "200 OK — Server healthy",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"status\": \"ok\",\n  \"service\": \"PumpCtrl API\",\n  \"version\": \"1.0.0\",\n  \"db\": \"connected\",\n  \"uptime_s\": 142,\n  \"timestamp\": \"2025-01-15T10:30:00.000Z\"\n}"
+            },
+            {
+              "name": "200 OK — DB disconnected",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"status\": \"ok\",\n  \"service\": \"PumpCtrl API\",\n  \"version\": \"1.0.0\",\n  \"db\": \"disconnected\",\n  \"uptime_s\": 3,\n  \"timestamp\": \"2025-01-15T10:30:00.000Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Root — Endpoint Directory",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/", "host": ["{{base_url}}"], "path": [""] },
+            "description": "Returns a JSON directory of all available endpoints. Useful as a quick reference."
+          },
+          "response": [
+            {
+              "name": "200 OK — Directory",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"service\": \"PumpCtrl API\",\n  \"version\": \"1.0.0\",\n  \"endpoints\": {\n    \"POST   /control/air-pump\":   \"Set air pump PWM (0\\u2013255)\",\n    \"POST   /control/water-pump\": \"Set water pump PWM (0\\u2013255)\",\n    \"POST   /control/valve\":      \"Set solenoid valve (open | closed)\",\n    \"GET    /control/state\":      \"Read current actuator state\",\n    \"POST   /sensors/reading\":    \"Ingest sensor snapshot\",\n    \"GET    /sensors/latest\":     \"Get most recent sensor reading\",\n    \"GET    /sensors/history\":    \"Get last N readings\",\n    \"DELETE /sensors/clear\":      \"Delete all sensor readings\",\n    \"GET    /health\":             \"Server + DB health check\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

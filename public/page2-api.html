@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PumpCtrl — API Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060c14;--panel:#0a1628;--border:#1a3a5c;
+  --accent:#00d4ff;--accent2:#ff6b1a;--accent3:#39ff14;
+  --grape:#a78bfa;--text:#c8dff0;--muted:#4a7090;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;}
+/* NAV */
+.topbar{display:flex;align-items:stretch;background:linear-gradient(90deg,#071020,#060c14);border-bottom:1px solid var(--border);height:52px;position:sticky;top:0;z-index:200;}
+.logo{font-family:'Orbitron',monospace;font-size:1rem;font-weight:900;color:var(--accent);text-shadow:0 0 16px var(--accent);padding:0 22px;display:flex;align-items:center;border-right:1px solid var(--border);letter-spacing:3px;white-space:nowrap;}
+.tabnav{display:flex;flex:1;}
+.tablink{padding:0 20px;font-family:'Orbitron',monospace;font-size:.58rem;letter-spacing:2px;text-transform:uppercase;border:none;background:transparent;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;text-decoration:none;display:flex;align-items:center;}
+.tablink.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(0,212,255,.05);}
+.tablink:hover:not(.active){color:var(--text);}
+.topright{display:flex;align-items:center;gap:14px;padding:0 18px;font-family:'Share Tech Mono',monospace;font-size:.65rem;}
+.sdot{width:7px;height:7px;border-radius:50%;background:var(--accent3);box-shadow:0 0 8px var(--accent3);animation:blink 2s infinite;display:inline-block;margin-right:4px;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+/* PAGE */
+.pg{padding:28px 32px;max-width:1200px;margin:0 auto;}
+.hero{margin-bottom:24px;}
+.hero h1{font-family:'Orbitron',monospace;font-size:1.4rem;font-weight:900;color:var(--accent);letter-spacing:3px;margin-bottom:6px;}
+.hero p{font-size:.88rem;color:var(--muted);line-height:1.6;max-width:680px;}
+/* CONFIG BAR */
+.cfg{background:rgba(0,212,255,.04);border:1px solid var(--border);border-radius:6px;padding:14px 18px;margin-bottom:22px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.cfg-lbl{font-size:.62rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase;white-space:nowrap;}
+.cfg input{flex:1;min-width:180px;background:#020810;border:1px solid var(--border);color:var(--accent);font-family:'Share Tech Mono',monospace;font-size:.8rem;padding:5px 10px;border-radius:4px;outline:none;}
+.cfg input:focus{border-color:var(--accent);}
+#connDot{font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--muted);white-space:nowrap;}
+/* SECTION */
+.sec-hdr{font-family:'Orbitron',monospace;font-size:.68rem;letter-spacing:3px;color:var(--accent2);text-transform:uppercase;padding:12px 0 8px;border-bottom:1px solid var(--border);margin:24px 0 14px;}
+/* GRID */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(520px,1fr));gap:18px;}
+.full{grid-column:1/-1;}
+/* CARD */
+.card{background:var(--panel);border:1px solid var(--border);border-radius:7px;overflow:hidden;}
+.card-hdr{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.meth{font-family:'Share Tech Mono',monospace;font-size:.68rem;font-weight:bold;padding:3px 9px;border-radius:3px;flex-shrink:0;}
+.mget{background:rgba(57,255,20,.14);color:#39ff14;border:1px solid #39ff14;}
+.mpost{background:rgba(255,107,26,.14);color:#ff6b1a;border:1px solid #ff6b1a;}
+.mdel{background:rgba(255,58,58,.14);color:#ff3a3a;border:1px solid #ff3a3a;}
+.mpatch{background:rgba(167,139,250,.14);color:#a78bfa;border:1px solid #a78bfa;}
+.ep{font-family:'Share Tech Mono',monospace;font-size:.82rem;color:var(--text);flex:1;}
+.card-body{padding:16px 18px;}
+.desc{font-size:.82rem;color:var(--muted);margin-bottom:12px;line-height:1.55;}
+/* FIELDS */
+.ftitle{font-size:.6rem;letter-spacing:2px;color:var(--accent2);text-transform:uppercase;margin-bottom:7px;font-weight:600;}
+.frow{display:flex;gap:8px;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(26,58,92,.4);font-size:.76rem;}
+.fn{font-family:'Share Tech Mono',monospace;color:var(--accent);width:170px;flex-shrink:0;}
+.ft{font-family:'Share Tech Mono',monospace;color:var(--accent2);width:68px;flex-shrink:0;font-size:.66rem;}
+.fd{color:var(--muted);flex:1;font-size:.72rem;}
+.fd code{font-family:'Share Tech Mono',monospace;background:rgba(0,212,255,.08);padding:1px 4px;border-radius:2px;font-size:.68rem;color:var(--accent);}
+/* CODE */
+.codeblock{background:#020810;border:1px solid var(--border);border-radius:4px;padding:11px 14px;font-family:'Share Tech Mono',monospace;font-size:.7rem;color:#8abfd0;overflow-x:auto;white-space:pre;margin-bottom:10px;}
+.codeblock.editable{border-color:rgba(167,139,250,.4);cursor:text;}
+.codeblock .k{color:#a78bfa;}
+.codeblock .s{color:#86efac;}
+.codeblock .n{color:#fbbf24;}
+/* BUTTONS */
+.btn{font-family:'Orbitron',monospace;font-size:.54rem;letter-spacing:1.5px;padding:6px 14px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;border-radius:3px;transition:all .2s;margin-right:7px;}
+.btn:hover{background:var(--accent);color:var(--bg);box-shadow:0 0 10px var(--accent);}
+.btn-del{border-color:#ff3a3a;color:#ff3a3a;}
+.btn-del:hover{background:#ff3a3a;color:#fff;box-shadow:0 0 10px #ff3a3a;}
+/* RESPONSE */
+.resp{background:#020810;border:1px solid rgba(57,255,20,.25);border-radius:4px;padding:11px 14px;font-family:'Share Tech Mono',monospace;font-size:.68rem;color:#86efac;margin-top:10px;display:none;max-height:200px;overflow-y:auto;white-space:pre-wrap;}
+body::-webkit-scrollbar{width:3px;}
+body::-webkit-scrollbar-thumb{background:var(--border);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">PUMPCTRL</div>
+  <div class="tabnav">
+    <a class="tablink" href="page1-simulation.html">&#x2B21; Simulation</a>
+    <a class="tablink active" href="page2-api.html">&#x27E8;/&#x27E9; API</a>
+    <a class="tablink" href="page3-dashboard.html">&#x25A6; Dashboard</a>
+  </div>
+  <div class="topright">
+    <span><span class="sdot"></span>API DOCS</span>
+    <span style="color:var(--accent)">v1.0</span>
+  </div>
+</div>
+
+<div class="pg">
+  <div class="hero">
+    <h1>API REFERENCE</h1>
+    <p>Control API for air pump, water pump, and solenoid valve. Sensor ingestion for water flow rate, temperature, and pressure. All endpoints return JSON.</p>
+  </div>
+
+  <!-- CONFIG BAR -->
+  <div class="cfg">
+    <span class="cfg-lbl">API Server</span>
+    <input id="cfgBase" type="text" value="http://localhost:3000" placeholder="http://localhost:3000">
+    <button class="btn" onclick="testConn()" style="white-space:nowrap;margin:0">&#9889; Test</button>
+    <span id="connDot">&#9679; Not tested</span>
+  </div>
+
+  <!-- ── SECTION 1: ACTUATOR CONTROL ─────────────────────────────── -->
+  <div class="sec-hdr">1 · Actuator Control</div>
+  <div class="grid">
+
+    <!-- Air Pump -->
+    <div class="card">
+      <div class="card-hdr">
+        <span class="meth mpost">POST</span>
+        <span class="ep">/control/air-pump</span>
+      </div>
+      <div class="card-body">
+        <div class="desc">Set the air pump speed via PWM. Value 0 = fully off, 255 = full speed. Hardware responds immediately.</div>
+        <div class="ftitle">Request Body</div>
+        <div class="frow"><span class="fn">pwm</span><span class="ft">integer</span><span class="fd">PWM duty cycle <code>0–255</code></span></div>
+        <div class="codeblock editable" id="cb_airpump" contenteditable="true" spellcheck="false">{
+  <span class="k">"pwm"</span>: <span class="n">128</span>
+}</div>
+        <button class="btn" onclick="call('POST','/control/air-pump','cb_airpump','r_airpump')">&#9654; Send</button>
+        <div class="resp" id="r_airpump"></div>
+      </div>
+    </div>
+
+    <!-- Water Pump -->
+    <div class="card">
+      <div class="card-hdr">
+        <span class="meth mpost">POST</span>
+        <span class="ep">/control/water-pump</span>
+      </div>
+      <div class="card-body">
+        <div class="desc">Set the water pump speed via PWM. Value 0 = fully off, 255 = full speed. Hardware responds immediately.</div>
+        <div class="ftitle">Request Body</div>
+        <div class="frow"><span class="fn">pwm</span><span class="ft">integer</span><span class="fd">PWM duty cycle <code>0–255</code></span></div>
+        <div class="codeblock editable" id="cb_waterpump" contenteditable="true" spellcheck="false">{
+  <span class="k">"pwm"</span>: <span class="n">128</span>
+}</div>
+        <button class="btn" onclick="call('POST','/control/water-pump','cb_waterpump','r_waterpump')">&#9654; Send</button>
+        <div class="resp" id="r_waterpump"></div>
+      </div>
+    </div>
+
+    <!-- Solenoid Valve -->
+    <div class="card">
+      <div class="card-hdr">
+        <span class="meth mpost">POST</span>
+        <span class="ep">/control/valve</span>
+      </div>
+      <div class="card-body">
+        <div class="desc">Open or close the solenoid valve. State is applied instantly to hardware and persisted.</div>
+        <div class="ftitle">Request Body</div>
+        <div class="frow"><span class="fn">state</span><span class="ft">string</span><span class="fd"><code>"open"</code> or <code>"closed"</code></span></div>
+        <div class="codeblock editable" id="cb_valve" contenteditable="true" spellcheck="false">{
+  <span class="k">"state"</span>: <span class="s">"open"</span>
+}</div>
+        <button class="btn" onclick="call('POST','/control/valve','cb_valve','r_valve')">&#9654; Send</button>
+        <div class="resp" id="r_valve"></div>
+      </div>
+    </div>
+
+    <!-- GET current state -->
+    <div class="card">
+      <div class="card-hdr">
+        <span class="meth mget">GET</span>
+        <span class="ep">/control/state</span>
+      </div>
+      <div class="card-body">
+        <div class="desc">Returns the current commanded state of all actuators — air pump PWM, water pump PWM, and valve state.</div>
+        <div class="codeblock">GET /control/state</div>
+        <button class="btn" onclick="call('GET','/control/state',null,'r_state')">&#9654; Fetch</button>
+        <div class="resp" id="r_state"></div>
+      </div>
+    </div>
+
+  </div><!-- /grid -->
+
+  <!-- ── SECTION 2: SENSOR DATA ──────────────────────────────────── -->
+  <div class="sec-hdr">2 · Sensor Data</div>
+  <div class="grid">
+
+    <!-- POST sensor reading -->
+    <div class="card">
+      <div class="card-hdr">
+        <span class="meth mpost">POST</span>
+        <span class="ep">/sensors/reading</span>
+      </div>
+      <div class="card-body">
+        <div class="desc">Submit a sensor reading from hardware. All three sensor values must be provided. Values are stored in the database and reflected live on the dashboard.</div>
+        <div class="ftitle">Request Body</div>
+        <div class="frow"><span class="fn">flow_rate</span><span class="ft">number</span><span class="fd">Water flow rate <code>0–1000</code></span></div>
+        <div class="frow"><span class="fn">temperature</span><span class="ft">number</span><span class="fd">Temperature <code>0–1000</code></span></div>
+        <div class="frow"><span class="fn">pressure</span><span class="ft">number</span><span class="fd">Pressure <code>0–1000</code></span></div>
+        <div class="codeblock editable" id="cb_sensor" contenteditable="true" spellcheck="false">{
+  <span class="k">"flow_rate"</span>: <span class="n">425.5</span>,
+  <span class="k">"temperature"</span>: <span class="n">312.0</span>,
+  <span class="k">"pressure"</span>: <span class="n">780.3</span>
+}</div>
+        <button class="btn" onclick="call('POST','/sensors/reading','cb_sensor','r_sensor_post')">&#9654; Send</button>
+        <div class="resp" id="r_sensor_post"></div>
+      </div>
+    </div>
+
+    <!-- GET latest reading -->
+    <div class="card">
+      <div class="card-hdr">
+        <span class="meth mget">GET</span>
+        <span class="ep">/sensors/latest</span>
+      </div>
+      <div class="card-body">
+        <div class="desc">Returns the single most recent sensor reading from the database.</div>
+        <div class="codeblock">GET /sensors/latest</div>
+        <button class="btn" onclick="call('GET','/sensors/latest',null,'r_sensor_latest')">&#9654; Fetch</button>
+        <div class="resp" id="r_sensor_latest"></div>
+      </div>
+    </div>
+
+    <!-- GET history -->
+    <div class="card">
+      <div class="card-hdr">
+        <span class="meth mget">GET</span>
+        <span class="ep">/sensors/history</span>
+      </div>
+      <div class="card-body">
+        <div class="desc">Returns up to the last 100 sensor readings ordered newest first. Use the optional <code>limit</code> query parameter to request fewer records.</div>
+        <div class="frow"><span class="fn">limit</span><span class="ft">integer?</span><span class="fd">Max records to return, default 100</span></div>
+        <div class="codeblock">GET /sensors/history?limit=20</div>
+        <button class="btn" onclick="call('GET','/sensors/history?limit=20',null,'r_sensor_hist')">&#9654; Fetch</button>
+        <div class="resp" id="r_sensor_hist"></div>
+      </div>
+    </div>
+
+    <!-- DELETE / clear all -->
+    <div class="card">
+      <div class="card-hdr">
+        <span class="meth mdel">DELETE</span>
+        <span class="ep">/sensors/clear</span>
+      </div>
+      <div class="card-body">
+        <div class="desc">Permanently deletes all sensor readings from the database. Dashboard values reset to zero. This action cannot be undone.</div>
+        <div class="codeblock">DELETE /sensors/clear</div>
+        <button class="btn btn-del" onclick="confirmClear()">&#128465; Clear All Readings</button>
+        <div class="resp" id="r_sensor_clear"></div>
+      </div>
+    </div>
+
+  </div><!-- /grid -->
+
+  <!-- ── SECTION 3: HEALTH ───────────────────────────────────────── -->
+  <div class="sec-hdr">3 · Health</div>
+  <div class="grid">
+    <div class="card">
+      <div class="card-hdr">
+        <span class="meth mget">GET</span>
+        <span class="ep">/health</span>
+      </div>
+      <div class="card-body">
+        <div class="desc">Returns server status and database connectivity. Use for polling from hardware or monitoring tools.</div>
+        <div class="codeblock">GET /health</div>
+        <button class="btn" onclick="call('GET','/health',null,'r_health')">&#9654; Fetch</button>
+        <div class="resp" id="r_health"></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /pg -->
+
+<script>
+function base(){return(document.getElementById('cfgBase').value||'http://localhost:3000').replace(/\/+$/,'');}
+
+async function call(method,path,bodyId,respId){
+  const el=document.getElementById(respId);
+  if(!el)return;
+  el.style.display='block';
+  el.style.color='#8abfd0';
+  el.style.borderColor='rgba(0,212,255,.3)';
+  el.textContent='⟳ '+method+' '+path+' …';
+  const opts={method,headers:{'Accept':'application/json'}};
+  if(method!=='GET'&&bodyId){
+    opts.headers['Content-Type']='application/json';
+    const b=document.getElementById(bodyId);
+    if(b){try{opts.body=JSON.stringify(JSON.parse(b.innerText||b.textContent));}catch(e){opts.body=b.innerText||b.textContent;}}
+  }
+  const t0=Date.now();
+  try{
+    const r=await fetch(base()+path,opts);
+    const ms=Date.now()-t0;
+    let txt;try{txt=JSON.stringify(await r.json(),null,2);}catch(_){txt=await r.text();}
+    el.style.color=r.ok?'#86efac':'#ff6b6b';
+    el.style.borderColor=r.ok?'rgba(57,255,20,.3)':'rgba(255,58,58,.4)';
+    el.textContent='HTTP '+r.status+' · '+ms+'ms\n\n'+txt;
+  }catch(e){
+    el.style.color='#ff6b6b';
+    el.style.borderColor='rgba(255,58,58,.4)';
+    el.textContent='✕ Network error: '+e.message+'\n\nMake sure the API server is running.';
+  }
+}
+
+function confirmClear(){
+  if(!confirm('Delete ALL sensor readings from the database? This cannot be undone.'))return;
+  call('DELETE','/sensors/clear',null,'r_sensor_clear');
+}
+
+async function testConn(){
+  const el=document.getElementById('connDot');
+  el.style.color='var(--muted)';el.textContent='⟳ Testing…';
+  try{
+    const r=await fetch(base()+'/health',{headers:{Accept:'application/json'}});
+    const d=await r.json();
+    if(r.ok){el.style.color='#39ff14';el.textContent='● Connected';}
+    else{el.style.color='#ffaa44';el.textContent='⚠ '+r.status;}
+  }catch(e){el.style.color='#ff3a3a';el.textContent='✕ Unreachable';}
+}
+</script>
+</body>
+</html>
