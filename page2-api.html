@@ -98,7 +98,7 @@ body::-webkit-scrollbar-thumb{background:var(--border);}
   <!-- CONFIG BAR -->
   <div class="cfg">
     <span class="cfg-lbl">API Server</span>
-    <input id="cfgBase" type="text" value="https://gas-lift-server.vercel.app/" placeholder="http://localhost:3000">
+    <input id="cfgBase" type="text" value="https://gas-lift-server.vercel.app" placeholder="http://localhost:3000">
     <button class="btn" onclick="testConn()" style="white-space:nowrap;margin:0">&#9889; Test</button>
     <span id="connDot">&#9679; Not tested</span>
   </div>
@@ -268,7 +268,7 @@ body::-webkit-scrollbar-thumb{background:var(--border);}
 </div><!-- /pg -->
 
 <script>
-function base(){return(document.getElementById('cfgBase').value||'https://gas-lift-server.vercel.app/').replace(/\/+$/,'');}
+function base(){return(document.getElementById('cfgBase').value||'https://gas-lift-server.vercel.app').replace(/\/+$/,'');}
 
 async function call(method,path,bodyId,respId){
   const el=document.getElementById(respId);
