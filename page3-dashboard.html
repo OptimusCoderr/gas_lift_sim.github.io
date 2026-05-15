@@ -2,95 +2,154 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>PumpCtrl — Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#060c14;--panel:#0a1628;--border:#1a3a5c;
   --accent:#00d4ff;--accent2:#ff6b1a;--accent3:#39ff14;
-  --grape:#a78bfa;--text:#c8dff0;--muted:#4a7090;--alarm:#ff2244;
+  --grape:#a78bfa;--rose:#f472b6;--amber:#fbbf24;
+  --text:#c8dff0;--muted:#4a7090;--muted2:#1a3050;--alarm:#ff2244;
+  --nav-h:52px;--lp-w:272px;--rp-w:256px;--sp-trans:.28s cubic-bezier(.4,0,.2,1);
 }
-*{margin:0;padding:0;box-sizing:border-box;}
-html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;}
-/* NAV */
-.topbar{display:flex;align-items:stretch;background:linear-gradient(90deg,#071020,#060c14);border-bottom:1px solid var(--border);height:52px;position:sticky;top:0;z-index:200;}
-.logo{font-family:'Orbitron',monospace;font-size:1rem;font-weight:900;color:var(--accent);text-shadow:0 0 16px var(--accent);padding:0 22px;display:flex;align-items:center;border-right:1px solid var(--border);letter-spacing:3px;white-space:nowrap;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;overflow:hidden;}
+/* TOPBAR */
+.topbar{display:flex;align-items:stretch;background:linear-gradient(90deg,#071020,#060c14);border-bottom:1px solid var(--border);height:var(--nav-h);position:sticky;top:0;z-index:300;flex-shrink:0;}
+.logo{font-family:'Orbitron',monospace;font-size:.95rem;font-weight:900;color:var(--accent);text-shadow:0 0 16px var(--accent);padding:0 20px;display:flex;align-items:center;border-right:1px solid var(--border);letter-spacing:3px;white-space:nowrap;}
 .tabnav{display:flex;flex:1;}
-.tablink{padding:0 20px;font-family:'Orbitron',monospace;font-size:.58rem;letter-spacing:2px;text-transform:uppercase;border:none;background:transparent;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;text-decoration:none;display:flex;align-items:center;}
+.tablink{padding:0 15px;font-family:'Orbitron',monospace;font-size:.53rem;letter-spacing:2px;text-transform:uppercase;border:none;background:transparent;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;text-decoration:none;display:flex;align-items:center;}
 .tablink.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(0,212,255,.05);}
 .tablink:hover:not(.active){color:var(--text);}
-.topright{display:flex;align-items:center;gap:14px;padding:0 18px;font-family:'Share Tech Mono',monospace;font-size:.65rem;}
-.sdot{width:7px;height:7px;border-radius:50%;background:var(--accent3);box-shadow:0 0 8px var(--accent3);animation:blink 2s infinite;display:inline-block;margin-right:4px;}
+.topright{display:flex;align-items:center;gap:9px;padding:0 14px;flex-shrink:0;}
+.sdot{width:7px;height:7px;border-radius:50%;background:var(--accent3);box-shadow:0 0 8px var(--accent3);animation:blink 2s infinite;flex-shrink:0;}
+.sdot.offline{background:#ff3a3a;box-shadow:0 0 8px #ff3a3a;}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-/* LAYOUT */
-.dash{padding:20px 24px;max-width:1400px;margin:0 auto;}
-/* CARDS */
-.card{background:var(--panel);border:1px solid var(--border);border-radius:7px;padding:16px 18px;}
-.ctitle{font-family:'Orbitron',monospace;font-size:.58rem;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
-/* SENSOR KPIs */
-.kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px;}
-.kpi{background:var(--panel);border:1px solid var(--border);border-radius:7px;padding:16px 18px;position:relative;overflow:hidden;}
-.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--kc,var(--accent));}
-.kpi-lbl{font-size:.56rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;}
-.kpi-val{font-family:'Share Tech Mono',monospace;font-size:2.2rem;font-weight:bold;color:var(--kc,var(--accent3));line-height:1;}
-.kpi-unit{font-size:.6rem;color:var(--muted);margin-top:4px;}
-.kpi-ts{font-family:'Share Tech Mono',monospace;font-size:.56rem;color:var(--muted);margin-top:6px;}
-.kpi.flow{--kc:#00d4ff;}
-.kpi.temp{--kc:#ff6b1a;}
-.kpi.pres{--kc:#a78bfa;}
-/* GAUGE BAR (visual 0-1000) */
-.gauge-bar-wrap{margin-top:8px;height:4px;background:rgba(26,58,92,.7);border-radius:2px;overflow:hidden;}
-.gauge-bar{height:100%;border-radius:2px;transition:width .7s;background:var(--kc,var(--accent));}
-/* MAIN GRID */
-.main-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
-.main-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;}
-@media(max-width:900px){.main-grid,.main-grid-3{grid-template-columns:1fr;}}
-@media(max-width:640px){.kpi-row{grid-template-columns:1fr;}}
-/* ACTUATOR CONTROL */
-.act-group{display:flex;flex-direction:column;gap:14px;}
-.act-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
-.act-lbl{font-size:.78rem;font-weight:600;min-width:110px;}
-.act-badge{font-family:'Share Tech Mono',monospace;font-size:.6rem;padding:2px 9px;border-radius:10px;font-weight:bold;}
-.badge-on{background:rgba(57,255,20,.12);color:#39ff14;border:1px solid #39ff14;}
-.badge-off{background:rgba(74,112,144,.1);color:var(--muted);border:1px solid var(--muted);}
-.badge-open{background:rgba(57,255,20,.12);color:#39ff14;border:1px solid #39ff14;}
-.badge-closed{background:rgba(255,58,58,.1);color:#ff3a3a;border:1px solid #ff3a3a;}
-/* PWM SLIDER */
-.pwm-wrap{flex:1;min-width:140px;display:flex;align-items:center;gap:8px;}
-.pwm-wrap input[type=range]{flex:1;-webkit-appearance:none;height:4px;border-radius:2px;outline:none;cursor:pointer;background:linear-gradient(90deg,var(--accent) var(--pct,50%),rgba(26,58,92,.7) var(--pct,50%));}
-.pwm-wrap input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent);cursor:pointer;}
-.pwm-val{font-family:'Share Tech Mono',monospace;font-size:.72rem;color:var(--accent);min-width:30px;text-align:right;}
-.pwm-wrap.wp input[type=range]{background:linear-gradient(90deg,#a78bfa var(--pct,50%),rgba(26,58,92,.7) var(--pct,50%));}
-.pwm-wrap.wp input[type=range]::-webkit-slider-thumb{background:#a78bfa;box-shadow:0 0 6px #a78bfa;}
-.pwm-wrap.wp .pwm-val{color:#a78bfa;}
-/* SEND BUTTON */
-.btn{font-family:'Orbitron',monospace;font-size:.52rem;letter-spacing:1.5px;padding:6px 13px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;border-radius:3px;transition:all .2s;}
+#connLabel{font-family:'Share Tech Mono',monospace;font-size:.58rem;color:var(--accent3);}
+#hdr_time{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--muted);}
+.alarm-strip{display:none;align-items:center;gap:6px;padding:0 12px;background:rgba(255,34,68,.12);border-left:2px solid var(--alarm);font-family:'Share Tech Mono',monospace;font-size:.58rem;color:var(--alarm);animation:almblink 1.1s infinite;flex-shrink:0;}
+.alarm-strip.on{display:flex;}
+@keyframes almblink{0%,100%{opacity:1}50%{opacity:.4}}
+/* PAGE */
+.page{display:flex;height:calc(100vh - var(--nav-h));overflow:hidden;position:relative;}
+/* SIDE PANELS */
+.sp{flex-shrink:0;background:var(--panel);overflow-y:auto;overflow-x:hidden;position:relative;transition:width var(--sp-trans);}
+.sp::-webkit-scrollbar{width:3px;}
+.sp::-webkit-scrollbar-thumb{background:var(--border);}
+.lp{width:var(--lp-w);border-right:1px solid var(--border);}
+.rp{width:var(--rp-w);border-left:1px solid var(--border);}
+.sp-inner{padding:12px 10px;transition:opacity .15s;}
+.lp .sp-inner{min-width:var(--lp-w);}
+.rp .sp-inner{min-width:var(--rp-w);}
+.lp.collapsed,.rp.collapsed{width:0!important;overflow:hidden;}
+.lp.collapsed .sp-inner,.rp.collapsed .sp-inner{opacity:0;pointer-events:none;}
+.sp-tab{position:absolute;top:50%;transform:translateY(-50%);z-index:210;width:18px;height:56px;background:var(--panel);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,border-color .2s;font-size:.48rem;color:var(--muted);writing-mode:vertical-lr;letter-spacing:1px;font-family:'Orbitron',monospace;user-select:none;}
+.sp-tab:hover{background:#0f2040;border-color:var(--accent);color:var(--accent);}
+.lp .sp-tab{right:-18px;border-left:none;border-radius:0 4px 4px 0;}
+.rp .sp-tab{left:-18px;border-right:none;border-radius:4px 0 0 4px;}
+.mob-btn{display:none;position:absolute;z-index:210;top:8px;background:rgba(10,22,40,.92);border:1px solid var(--border);border-radius:4px;padding:5px 9px;cursor:pointer;font-family:'Orbitron',monospace;font-size:.48rem;letter-spacing:1px;color:var(--accent);gap:4px;align-items:center;backdrop-filter:blur(4px);}
+.mob-btn-l{left:8px;}
+.mob-btn-r{right:8px;}
+/* CENTRE */
+.cc{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;background:radial-gradient(ellipse at 50% 5%,#0c1d33 0%,var(--bg) 72%);}
+/* METRIC BAR */
+.mbar{display:flex;gap:3px;flex-wrap:wrap;justify-content:center;padding:5px 6px 0;flex-shrink:0;}
+.mc{background:rgba(0,212,255,.04);border:1px solid var(--border);border-radius:3px;padding:4px 8px;text-align:center;flex:1;min-width:62px;max-width:110px;position:relative;overflow:hidden;transition:border-color .3s;}
+.mc::before{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--mc-col,var(--accent));opacity:.5;}
+.mlbl{font-size:.45rem;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:1px;}
+.mv{font-family:'Share Tech Mono',monospace;font-size:.82rem;color:var(--accent3);font-weight:bold;line-height:1;}
+.mu{font-size:.44rem;color:var(--muted);margin-top:1px;}
+.mc.hi{border-color:var(--alarm);--mc-col:var(--alarm);}
+/* CANVAS AREA */
+.ctop{flex:1;display:flex;align-items:center;justify-content:center;padding:5px;overflow:hidden;position:relative;min-height:0;}
+#mainCanvas{display:block;}
+/* BOTTOM CHARTS */
+.cbot{height:122px;flex-shrink:0;border-top:1px solid var(--border);display:flex;}
+.cpane{flex:1;padding:4px 8px;border-right:1px solid var(--border);position:relative;overflow:hidden;}
+.cpane:last-child{border-right:none;}
+.cpane-title{font-family:'Orbitron',monospace;font-size:.42rem;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:2px;}
+/* SIDEBAR SHARED */
+.ptitle{font-family:'Orbitron',monospace;font-size:.52rem;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border);}
+.psub{font-size:.58rem;letter-spacing:2px;color:var(--accent2);text-transform:uppercase;margin-bottom:5px;font-weight:600;}
+.prow{margin-bottom:8px;}
+.plbl{display:flex;justify-content:space-between;align-items:center;font-size:.68rem;color:var(--text);margin-bottom:2px;font-weight:500;}
+.pv{font-family:'Share Tech Mono',monospace;color:var(--accent);font-size:.66rem;white-space:nowrap;}
+.div-line{border-top:1px solid var(--border);margin:8px 0;}
+/* RANGE SLIDERS */
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;border-radius:2px;outline:none;cursor:pointer;background:linear-gradient(90deg,var(--sl-col,var(--accent)) var(--pct,0%),var(--muted2) var(--pct,0%));}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--sl-col,var(--accent));box-shadow:0 0 7px var(--sl-col,var(--accent));cursor:pointer;transition:transform .12s;}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.35);}
+/* GAUGE BARS */
+.gbar-wrap{height:4px;background:var(--muted2);border-radius:2px;overflow:hidden;margin-top:3px;}
+.gbar{height:100%;border-radius:2px;transition:width .6s;}
+/* BADGES */
+.abadge{font-family:'Share Tech Mono',monospace;font-size:.56rem;padding:2px 7px;border-radius:10px;font-weight:bold;}
+.ab-on{background:rgba(57,255,20,.12);color:#39ff14;border:1px solid #39ff14;}
+.ab-off{background:rgba(74,112,144,.1);color:var(--muted);border:1px solid var(--muted);}
+.ab-open{background:rgba(57,255,20,.12);color:#39ff14;border:1px solid #39ff14;}
+.ab-closed{background:rgba(255,58,58,.1);color:#ff3a3a;border:1px solid #ff3a3a;}
+/* BUTTONS */
+.btn{font-family:'Orbitron',monospace;font-size:.48rem;letter-spacing:1.5px;padding:5px 10px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;border-radius:3px;transition:all .2s;}
 .btn:hover{background:var(--accent);color:var(--bg);box-shadow:0 0 10px var(--accent);}
-.btn-v{border-color:var(--accent3);color:var(--accent3);}
-.btn-v:hover{background:var(--accent3);color:var(--bg);box-shadow:0 0 10px var(--accent3);}
-.btn-red{border-color:#ff3a3a;color:#ff3a3a;}
-.btn-red:hover{background:#ff3a3a;color:#fff;box-shadow:0 0 10px #ff3a3a;}
-.btn-grape{border-color:#a78bfa;color:#a78bfa;}
-.btn-grape:hover{background:#a78bfa;color:var(--bg);box-shadow:0 0 10px #a78bfa;}
-/* STATUS LINE */
-.send-status{font-family:'Share Tech Mono',monospace;font-size:.6rem;margin-top:6px;min-height:16px;transition:color .2s;}
+.btn-g{border-color:var(--accent3);color:var(--accent3);}
+.btn-g:hover{background:var(--accent3);color:var(--bg);box-shadow:0 0 10px var(--accent3);}
+.btn-o{border-color:var(--accent2);color:var(--accent2);}
+.btn-o:hover{background:var(--accent2);color:var(--bg);}
+.btn-r{border-color:#ff3a3a;color:#ff3a3a;}
+.btn-r:hover{background:#ff3a3a;color:#fff;}
+.btn-p{border-color:var(--grape);color:var(--grape);}
+.btn-p:hover{background:var(--grape);color:var(--bg);}
+.sstat{font-family:'Share Tech Mono',monospace;font-size:.56rem;min-height:13px;margin-top:3px;transition:color .2s;}
 /* HISTORY TABLE */
-.hist-table{width:100%;border-collapse:collapse;}
-.hist-table th{font-family:'Orbitron',monospace;font-size:.5rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase;padding:6px 10px;border-bottom:1px solid var(--border);text-align:left;font-weight:400;}
-.hist-table td{padding:7px 10px;font-family:'Share Tech Mono',monospace;font-size:.72rem;border-bottom:1px solid rgba(26,58,92,.3);}
-.hist-table tr:last-child td{border-bottom:none;}
-.hist-table tr:hover td{background:rgba(0,212,255,.025);}
-.hist-wrap{max-height:260px;overflow-y:auto;}
-.hist-wrap::-webkit-scrollbar{width:3px;}
-.hist-wrap::-webkit-scrollbar-thumb{background:var(--border);}
-/* MINI CHART */
-.chart-wrap{position:relative;height:140px;}
-/* CONN STATUS */
-#connStatus{font-family:'Share Tech Mono',monospace;font-size:.62rem;}
-/* CLEAR BTN area */
-.clear-row{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
-.clear-status{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--muted);}
+.htable{width:100%;border-collapse:collapse;}
+.htable th{font-family:'Orbitron',monospace;font-size:.44rem;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;padding:5px 6px;border-bottom:1px solid var(--border);text-align:left;font-weight:400;}
+.htable td{padding:5px 6px;font-family:'Share Tech Mono',monospace;font-size:.64rem;border-bottom:1px solid rgba(26,58,92,.3);}
+.htable tr:last-child td{border-bottom:none;}
+.htable tr:hover td{background:rgba(0,212,255,.025);}
+.hwrap{max-height:200px;overflow-y:auto;}
+.hwrap::-webkit-scrollbar{width:3px;}
+.hwrap::-webkit-scrollbar-thumb{background:var(--border);}
+/* ALARMS + LOG */
+.alist{max-height:82px;overflow-y:auto;margin-bottom:8px;}
+.ai{display:flex;align-items:center;gap:5px;padding:3px 5px;margin-bottom:2px;border-radius:3px;font-size:.6rem;font-family:'Share Tech Mono',monospace;}
+.ai.crit{background:rgba(255,34,68,.1);border:1px solid rgba(255,34,68,.25);color:#ff6688;}
+.ai.warn{background:rgba(255,107,26,.08);border:1px solid rgba(255,107,26,.2);color:#ffaa66;}
+.noal{font-size:.64rem;color:var(--muted);font-family:'Share Tech Mono',monospace;padding:3px 0;}
+.elog{background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:3px;padding:5px;height:96px;overflow-y:auto;font-family:'Share Tech Mono',monospace;font-size:.57rem;color:var(--muted);}
+.elog .le{margin-bottom:2px;line-height:1.4;}
+.elog .ok span{color:var(--accent3);}
+.elog .warn span{color:var(--accent2);}
+.elog .err span{color:var(--alarm);}
+.elog .le span{color:var(--accent);}
+/* STREAM DOT */
+.stream-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent3);margin-right:4px;animation:pulse 1s ease-in-out infinite;}
+.stream-dot.dead{background:#ff3a3a;animation:none;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+/* API INPUT */
+.api-input{width:100%;background:#020810;border:1px solid var(--border);color:var(--accent);font-family:'Share Tech Mono',monospace;font-size:.7rem;padding:5px 8px;border-radius:3px;outline:none;}
+.api-input:focus{border-color:var(--accent);}
+/* RESPONSIVE */
+@media(max-width:1080px){:root{--lp-w:236px;--rp-w:218px;}}
+@media(max-width:860px){
+  :root{--nav-h:48px;}
+  .lp,.rp{position:absolute;top:0;bottom:0;z-index:200;box-shadow:6px 0 30px rgba(0,0,0,.7);}
+  .lp{left:0;transition:transform var(--sp-trans)!important;}
+  .rp{right:0;transition:transform var(--sp-trans)!important;}
+  .lp.collapsed{width:var(--lp-w)!important;transform:translateX(-100%);overflow:visible;}
+  .rp.collapsed{width:var(--rp-w)!important;transform:translateX(100%);overflow:visible;}
+  .lp.collapsed .sp-inner,.rp.collapsed .sp-inner{opacity:0;pointer-events:none;}
+  .sp-tab{display:none!important;}
+  .mob-btn{display:flex;}
+  .cc{width:100%;}
+  .cbot{height:100px;}
+}
+@media(max-width:540px){
+  .mbar .mc:nth-child(n+6){display:none;}
+  .cbot{height:80px;}
+}
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-thumb{background:var(--border);}
 </style>
 </head>
 <body>
@@ -102,485 +161,667 @@ html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:'Ra
     <a class="tablink" href="page2-api.html">&#x27E8;/&#x27E9; API</a>
     <a class="tablink active" href="page3-dashboard.html">&#x25A6; Dashboard</a>
   </div>
+  <div class="alarm-strip" id="alarmStrip">&#x26A0; ALARM</div>
   <div class="topright">
-    <span id="connStatus" style="color:var(--muted)">&#9679; Connecting…</span>
-    <span id="hdr_time" style="color:var(--muted)">00:00:00</span>
+    <div class="sdot" id="sdot"></div>
+    <span id="connLabel">Connecting…</span>
+    <span id="hdr_time">00:00:00</span>
   </div>
 </div>
 
-<div class="dash">
+<div class="page">
+  <button class="mob-btn mob-btn-l" id="mobL" onclick="mobToggle('lp')">&#9776; Sensors</button>
+  <button class="mob-btn mob-btn-r" id="mobR" onclick="mobToggle('rp')">Control &#9776;</button>
 
-  <!-- ── SENSOR KPIs ──────────────────────────────────────────────── -->
-  <div class="kpi-row">
-    <div class="kpi flow">
-      <div class="kpi-lbl">Water Flow Rate</div>
-      <div class="kpi-val" id="kv_flow">—</div>
-      <div class="kpi-unit">units (0–1000)</div>
-      <div class="gauge-bar-wrap"><div class="gauge-bar" id="gb_flow" style="width:0%"></div></div>
-      <div class="kpi-ts" id="kt_flow">No data</div>
-    </div>
-    <div class="kpi temp">
-      <div class="kpi-lbl">Temperature</div>
-      <div class="kpi-val" id="kv_temp">—</div>
-      <div class="kpi-unit">units (0–1000)</div>
-      <div class="gauge-bar-wrap"><div class="gauge-bar" id="gb_temp" style="width:0%"></div></div>
-      <div class="kpi-ts" id="kt_temp">No data</div>
-    </div>
-    <div class="kpi pres">
-      <div class="kpi-lbl">Pressure</div>
-      <div class="kpi-val" id="kv_pres">—</div>
-      <div class="kpi-unit">units (0–1000)</div>
-      <div class="gauge-bar-wrap"><div class="gauge-bar" id="gb_pres" style="width:0%"></div></div>
-      <div class="kpi-ts" id="kt_pres">No data</div>
-    </div>
-  </div>
+  <!-- LEFT PANEL: live sensor readings + history -->
+  <div class="sp lp" id="lp">
+    <div class="sp-tab" onclick="deskToggle('lp')">S<br>E<br>N<br>S</div>
+    <div class="sp-inner">
 
-  <!-- ── MAIN GRID ────────────────────────────────────────────────── -->
-  <div class="main-grid">
+      <div class="ptitle"><span class="stream-dot" id="streamDot"></span>Live Sensors</div>
 
-    <!-- ACTUATOR CONTROL -->
-    <div class="card">
-      <div class="ctitle">
-        &#9881; Actuator Control
-        <span style="font-family:'Share Tech Mono',monospace;font-size:.58rem;color:var(--muted)" id="act_ts">—</span>
+      <!-- Voltage -->
+      <div class="prow">
+        <div class="plbl">Voltage (Air Pump) <span class="pv" id="sv_volt" style="color:var(--amber)">—</span></div>
+        <div class="gbar-wrap"><div class="gbar" id="sgb_volt" style="width:0%;background:var(--amber)"></div></div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:.52rem;color:var(--muted)" id="sts_volt">No data</div>
       </div>
-      <div class="act-group">
 
-        <!-- Air Pump -->
-        <div>
-          <div class="act-row" style="margin-bottom:6px">
-            <span class="act-lbl">&#128168; Air Pump</span>
-            <span class="act-badge badge-off" id="ab_air">OFF</span>
-          </div>
-          <div class="act-row">
-            <div class="pwm-wrap" id="pwm_air_wrap">
-              <input type="range" id="sl_air" min="0" max="255" value="0" step="1"
-                oninput="updatePwmDisplay('air',this.value)">
-              <span class="pwm-val" id="pv_air">0</span>
-            </div>
-            <button class="btn" onclick="sendAirPump()">&#9654; Set PWM</button>
-          </div>
-          <div class="send-status" id="ss_air"></div>
-        </div>
-
-        <div style="border-top:1px solid var(--border);margin:4px 0;"></div>
-
-        <!-- Water Pump -->
-        <div>
-          <div class="act-row" style="margin-bottom:6px">
-            <span class="act-lbl">&#128167; Water Pump</span>
-            <span class="act-badge badge-off" id="ab_water">OFF</span>
-          </div>
-          <div class="act-row">
-            <div class="pwm-wrap wp" id="pwm_water_wrap">
-              <input type="range" id="sl_water" min="0" max="255" value="0" step="1"
-                oninput="updatePwmDisplay('water',this.value)">
-              <span class="pwm-val" id="pv_water">0</span>
-            </div>
-            <button class="btn btn-grape" onclick="sendWaterPump()">&#9654; Set PWM</button>
-          </div>
-          <div class="send-status" id="ss_water"></div>
-        </div>
-
-        <div style="border-top:1px solid var(--border);margin:4px 0;"></div>
-
-        <!-- Solenoid Valve -->
-        <div>
-          <div class="act-row" style="margin-bottom:8px">
-            <span class="act-lbl">&#127777; Solenoid Valve</span>
-            <span class="act-badge badge-closed" id="ab_valve">CLOSED</span>
-          </div>
-          <div class="act-row">
-            <button class="btn btn-v" onclick="sendValve('open')">&#9650; Open Valve</button>
-            <button class="btn btn-red" onclick="sendValve('closed')">&#9660; Close Valve</button>
-          </div>
-          <div class="send-status" id="ss_valve"></div>
-        </div>
-
+      <!-- Current -->
+      <div class="prow">
+        <div class="plbl">Current (Air Pump) <span class="pv" id="sv_curr" style="color:var(--rose)">—</span></div>
+        <div class="gbar-wrap"><div class="gbar" id="sgb_curr" style="width:0%;background:var(--rose)"></div></div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:.52rem;color:var(--muted)" id="sts_curr">No data</div>
       </div>
-    </div>
 
-    <!-- SENSOR HISTORY TABLE -->
-    <div class="card">
-      <div class="ctitle">
-        &#128202; Sensor History
-        <div style="display:flex;gap:8px;align-items:center;">
-          <button class="btn btn-red" style="font-size:.48rem;padding:4px 10px;" onclick="clearReadings()">&#128465; Clear All</button>
-          <span id="hist_count" style="font-family:'Share Tech Mono',monospace;font-size:.58rem;color:var(--muted)">0 records</span>
+      <!-- Air Pressure -->
+      <div class="prow">
+        <div class="plbl">Air Pressure <span class="pv" id="sv_airp" style="color:var(--accent)">—</span></div>
+        <div class="gbar-wrap"><div class="gbar" id="sgb_airp" style="width:0%;background:var(--accent)"></div></div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:.52rem;color:var(--muted)" id="sts_airp">No data</div>
+      </div>
+
+      <!-- Water Pressure -->
+      <div class="prow">
+        <div class="plbl">Water Pressure <span class="pv" id="sv_wtrp" style="color:var(--grape)">—</span></div>
+        <div class="gbar-wrap"><div class="gbar" id="sgb_wtrp" style="width:0%;background:var(--grape)"></div></div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:.52rem;color:var(--muted)" id="sts_wtrp">No data</div>
+      </div>
+
+      <!-- Temperature -->
+      <div class="prow">
+        <div class="plbl">Temperature <span class="pv" id="sv_temp" style="color:var(--accent2)">—</span></div>
+        <div class="gbar-wrap"><div class="gbar" id="sgb_temp" style="width:0%;background:var(--accent2)"></div></div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:.52rem;color:var(--muted)" id="sts_temp">No data</div>
+      </div>
+
+      <!-- Flow Rate -->
+      <div class="prow">
+        <div class="plbl">Flow Rate (Exit) <span class="pv" id="sv_flow" style="color:var(--accent3)">—</span></div>
+        <div class="gbar-wrap"><div class="gbar" id="sgb_flow" style="width:0%;background:var(--accent3)"></div></div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:.52rem;color:var(--muted)" id="sts_flow">No data</div>
+      </div>
+
+      <div class="div-line"></div>
+
+      <!-- API config -->
+      <div class="ptitle" style="font-size:.48rem;letter-spacing:2px;">&#9881; API Server</div>
+      <div class="prow">
+        <input class="api-input" id="apiBase" type="text" value="http://localhost:3000" placeholder="https://your-app.vercel.app">
+        <button class="btn" style="width:100%;margin-top:6px;" onclick="reconnect()">&#9654; Connect</button>
+      </div>
+
+      <div class="div-line"></div>
+
+      <!-- History -->
+      <div class="ptitle" style="display:flex;justify-content:space-between;align-items:center;">
+        &#128202; History
+        <div style="display:flex;gap:6px;align-items:center;">
+          <span id="hcount" style="font-family:'Share Tech Mono',monospace;font-size:.55rem;color:var(--muted)">0</span>
+          <button class="btn btn-r" style="font-size:.42rem;padding:3px 7px;" onclick="clearReadings()">&#128465;</button>
         </div>
       </div>
-      <div class="hist-wrap">
-        <table class="hist-table">
-          <thead>
-            <tr>
-              <th>Time</th>
-              <th style="color:#00d4ff">Flow</th>
-              <th style="color:#ff6b1a">Temp</th>
-              <th style="color:#a78bfa">Pressure</th>
-            </tr>
-          </thead>
-          <tbody id="hist_body">
-            <tr><td colspan="4" style="color:var(--muted);text-align:center;padding:20px 0;font-family:'Rajdhani',sans-serif;font-size:.78rem;">No readings yet</td></tr>
-          </tbody>
+      <div class="hwrap">
+        <table class="htable">
+          <thead><tr>
+            <th>Time</th>
+            <th style="color:var(--amber)">V</th>
+            <th style="color:var(--rose)">A</th>
+            <th style="color:var(--accent)">AirP</th>
+            <th style="color:var(--grape)">WtrP</th>
+            <th style="color:var(--accent2)">Temp</th>
+            <th style="color:var(--accent3)">Flow</th>
+          </tr></thead>
+          <tbody id="hist_body"><tr><td colspan="7" style="color:var(--muted);text-align:center;padding:14px 0;font-size:.75rem">No data yet</td></tr></tbody>
         </table>
       </div>
+
+    </div>
+  </div><!-- /lp -->
+
+  <!-- CENTRE: canvas gauges + charts -->
+  <div class="cc">
+    <!-- Metric bar: all 6 sensors + 2 actuator values + valve -->
+    <div class="mbar">
+      <div class="mc" style="--mc-col:var(--amber)"><div class="mlbl">Voltage</div><div class="mv" id="mv_volt">—</div><div class="mu">V</div></div>
+      <div class="mc" style="--mc-col:var(--rose)"><div class="mlbl">Current</div><div class="mv" id="mv_curr">—</div><div class="mu">A</div></div>
+      <div class="mc" style="--mc-col:var(--accent)"><div class="mlbl">Air Pres.</div><div class="mv" id="mv_airp">—</div><div class="mu">0–1000</div></div>
+      <div class="mc" style="--mc-col:var(--grape)"><div class="mlbl">Water Pres.</div><div class="mv" id="mv_wtrp">—</div><div class="mu">0–1000</div></div>
+      <div class="mc" style="--mc-col:var(--accent2)"><div class="mlbl">Temp</div><div class="mv" id="mv_temp">—</div><div class="mu">0–1000</div></div>
+      <div class="mc" style="--mc-col:var(--accent3)"><div class="mlbl">Flow Rate</div><div class="mv" id="mv_flow">—</div><div class="mu">0–1000</div></div>
+      <div class="mc" style="--mc-col:var(--accent)"><div class="mlbl">Air Pump</div><div class="mv" id="mv_air">0</div><div class="mu">0–100</div></div>
+      <div class="mc" style="--mc-col:var(--grape)"><div class="mlbl">Water Pump</div><div class="mv" id="mv_water">0</div><div class="mu">0–100</div></div>
+      <div class="mc" id="mc_valve" style="--mc-col:var(--accent3)"><div class="mlbl">Valve</div><div class="mv" id="mv_valve">—</div><div class="mu">state</div></div>
     </div>
 
-  </div><!-- /main-grid -->
+    <!-- Main canvas -->
+    <div class="ctop" id="ctop"><canvas id="mainCanvas"></canvas></div>
 
-  <!-- ── TREND CHARTS ─────────────────────────────────────────────── -->
-  <div class="main-grid-3">
-    <div class="card">
-      <div class="ctitle">Flow Rate Trend</div>
-      <div class="chart-wrap"><canvas id="ch_flow"></canvas></div>
+    <!-- Bottom charts: 3 panes -->
+    <div class="cbot">
+      <div class="cpane"><div class="cpane-title">Air Pressure / Water Pressure</div><canvas id="ch0"></canvas></div>
+      <div class="cpane"><div class="cpane-title">Temperature / Flow Rate</div><canvas id="ch1"></canvas></div>
+      <div class="cpane"><div class="cpane-title">Voltage / Current</div><canvas id="ch2"></canvas></div>
     </div>
-    <div class="card">
-      <div class="ctitle">Temperature Trend</div>
-      <div class="chart-wrap"><canvas id="ch_temp"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="ctitle">Pressure Trend</div>
-      <div class="chart-wrap"><canvas id="ch_pres"></canvas></div>
-    </div>
-  </div>
+  </div><!-- /cc -->
 
-</div><!-- /dash -->
+  <!-- RIGHT PANEL: actuator controls + alarms + log -->
+  <div class="sp rp" id="rp">
+    <div class="sp-tab" onclick="deskToggle('rp')">C<br>T<br>R<br>L</div>
+    <div class="sp-inner">
+
+      <div class="ptitle">&#9881; Actuator Control</div>
+
+      <!-- Air pump 0-100 -->
+      <div class="psub">&#128168; Air Pump (Gas Lift)</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+        <span style="font-size:.68rem;">Level <span id="pv_air" style="font-family:'Share Tech Mono',monospace;color:var(--accent)">0</span> / 100</span>
+        <span class="abadge ab-off" id="ab_air">OFF</span>
+      </div>
+      <input type="range" id="sl_air" min="0" max="100" value="0" step="1" style="--sl-col:var(--accent)"
+        oninput="sliderMove('air',this.value)">
+      <div style="display:flex;gap:5px;margin-top:5px;">
+        <button class="btn" style="flex:1" onclick="sendAir()">&#9654; Set</button>
+        <button class="btn btn-r" style="padding:5px 8px;" onclick="sendAirQ(0)">&#9646;</button>
+        <button class="btn btn-g" style="padding:5px 8px;" onclick="sendAirQ(100)">&#9650;</button>
+      </div>
+      <div class="sstat" id="ss_air"></div>
+
+      <div class="div-line"></div>
+
+      <!-- Water pump 0-100 -->
+      <div class="psub">&#128167; Water Pump (Well Pressure)</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+        <span style="font-size:.68rem;">Level <span id="pv_water" style="font-family:'Share Tech Mono',monospace;color:var(--grape)">0</span> / 100</span>
+        <span class="abadge ab-off" id="ab_water">OFF</span>
+      </div>
+      <input type="range" id="sl_water" min="0" max="100" value="0" step="1" style="--sl-col:var(--grape)"
+        oninput="sliderMove('water',this.value)">
+      <div style="display:flex;gap:5px;margin-top:5px;">
+        <button class="btn btn-p" style="flex:1" onclick="sendWater()">&#9654; Set</button>
+        <button class="btn btn-r" style="padding:5px 8px;" onclick="sendWaterQ(0)">&#9646;</button>
+        <button class="btn btn-g" style="padding:5px 8px;" onclick="sendWaterQ(100)">&#9650;</button>
+      </div>
+      <div class="sstat" id="ss_water"></div>
+
+      <div class="div-line"></div>
+
+      <!-- Valve -->
+      <div class="psub">&#127777; Solenoid Valve</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;">
+        <span style="font-size:.68rem;">State</span>
+        <span class="abadge ab-closed" id="ab_valve">CLOSED</span>
+      </div>
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn-g" style="flex:1" onclick="sendValve('open')">&#9650; Open</button>
+        <button class="btn btn-r" style="flex:1" onclick="sendValve('closed')">&#9660; Close</button>
+      </div>
+      <div class="sstat" id="ss_valve"></div>
+
+      <div class="div-line"></div>
+
+      <!-- Alarms -->
+      <div class="ptitle" style="display:flex;justify-content:space-between;align-items:center;">
+        &#128680; Alarms
+        <button class="btn btn-r" id="btnAck" style="font-size:.42rem;padding:3px 7px;display:none;" onclick="ackAlarms()">Ack</button>
+      </div>
+      <div class="alist" id="alarmList"><div class="noal">No active alarms</div></div>
+
+      <!-- Event log -->
+      <div class="ptitle" style="margin-top:6px">&#128203; Event Log</div>
+      <div class="elog" id="elog"></div>
+
+    </div>
+  </div><!-- /rp -->
+</div><!-- /page -->
 
 <script>
 'use strict';
+// ── CONFIG ─────────────────────────────────────────────────────────
+let API = 'http://localhost:3000';
+const CHART_LEN = 60;
+const POLL_MS   = 3000;
 
-// ── CONFIG ──────────────────────────────────────────────────────────
-const API = 'https://gas-lift-server.vercel.app';   // change to match your server
-const POLL_MS = 3000;                  // sensor poll interval
+// ── STATE ──────────────────────────────────────────────────────────
+let S = { voltage:null, current:null, air_pressure:null, water_pressure:null, temperature:null, flow_rate:null, timestamp:null };
+let ACT = { air_pump_value:0, water_pump_value:0, valve_state:'closed' };
+let logs = [], alarms = [], sseConn = null, fallbackTimer = null;
 
-// ── STATE ───────────────────────────────────────────────────────────
-let lastReading = null;
-let histData = [];          // array of {ts,flow_rate,temperature,pressure}
-const MAXHIST = 60;
+const CHART_LEN2 = CHART_LEN;
+let hAirP  = new Array(CHART_LEN2).fill(null);
+let hWtrP  = new Array(CHART_LEN2).fill(null);
+let hTemp  = new Array(CHART_LEN2).fill(null);
+let hFlow  = new Array(CHART_LEN2).fill(null);
+let hVolt  = new Array(CHART_LEN2).fill(null);
+let hCurr  = new Array(CHART_LEN2).fill(null);
 
-// Chart history arrays (last 30 points shown in chart)
-const CHART_LEN = 30;
-let hFlow = new Array(CHART_LEN).fill(null);
-let hTemp = new Array(CHART_LEN).fill(null);
-let hPres = new Array(CHART_LEN).fill(null);
+// ── CANVAS ─────────────────────────────────────────────────────────
+const canvas = document.getElementById('mainCanvas');
+const ctx    = canvas.getContext('2d');
+let CW = 400, CH = 400;
 
-// ── TIME ────────────────────────────────────────────────────────────
-function tick(){
-  const n=new Date();
-  document.getElementById('hdr_time').textContent=
-    [n.getHours(),n.getMinutes(),n.getSeconds()]
-    .map(v=>String(v).padStart(2,'0')).join(':');
+function resizeCanvas(){
+  const r = document.getElementById('ctop').getBoundingClientRect();
+  const dpr = window.devicePixelRatio||1;
+  CW = Math.max(200, r.width-8); CH = Math.max(140, r.height-8);
+  canvas.width  = Math.round(CW*dpr); canvas.height = Math.round(CH*dpr);
+  canvas.style.width = CW+'px'; canvas.style.height = CH+'px';
+  ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr,dpr);
 }
-setInterval(tick,1000); tick();
 
-// ── PWM DISPLAY ─────────────────────────────────────────────────────
-function updatePwmDisplay(which, v){
-  const pct = (v/255*100).toFixed(1);
-  document.getElementById('pv_'+which).textContent = v;
-  const wrap = document.getElementById('pwm_'+which+'_wrap').querySelector('input');
-  wrap.style.setProperty('--pct', pct+'%');
-  // update badge
-  const badge = document.getElementById('ab_'+which);
-  if(+v > 0){
-    badge.textContent = 'ON  PWM:'+v;
-    badge.className = 'act-badge badge-on';
-  } else {
-    badge.textContent = 'OFF';
-    badge.className = 'act-badge badge-off';
+// ── DRAW GAUGE ─────────────────────────────────────────────────────
+function gauge(cx,cy,r,val,max,col,label,unit,warn){
+  const pct = Math.min(1,Math.max(0,(val==null?0:val)/max));
+  const st = Math.PI*0.75, sw = Math.PI*1.5;
+  // Track
+  ctx.beginPath(); ctx.arc(cx,cy,r,st,st+sw);
+  ctx.strokeStyle='rgba(26,58,92,.65)'; ctx.lineWidth=Math.max(5,r*.11); ctx.stroke();
+  // Value arc
+  if(val!=null&&pct>0){
+    const ac = (warn&&val>warn) ? '#ff2244' : col;
+    ctx.beginPath(); ctx.arc(cx,cy,r,st,st+sw*pct);
+    ctx.strokeStyle=ac; ctx.lineWidth=Math.max(5,r*.11);
+    ctx.shadowColor=ac; ctx.shadowBlur=9; ctx.stroke(); ctx.shadowBlur=0;
+  }
+  // Ticks
+  for(let i=0;i<=8;i++){
+    const a=st+(i/8)*sw;
+    const inner=i%4===0?r*.8:r*.88, outer=r*.97;
+    ctx.beginPath();
+    ctx.moveTo(cx+Math.cos(a)*inner,cy+Math.sin(a)*inner);
+    ctx.lineTo(cx+Math.cos(a)*outer,cy+Math.sin(a)*outer);
+    ctx.strokeStyle=i%4===0?'rgba(74,112,144,.6)':'rgba(74,112,144,.25)';
+    ctx.lineWidth=1; ctx.stroke();
+  }
+  // Needle
+  if(val!=null){
+    const na=st+sw*pct,nr=r*.62;
+    const ac=(warn&&val>warn)?'#ff2244':col;
+    ctx.beginPath(); ctx.moveTo(cx,cy);
+    ctx.lineTo(cx+Math.cos(na)*nr,cy+Math.sin(na)*nr);
+    ctx.strokeStyle=ac; ctx.lineWidth=2;
+    ctx.shadowColor=ac; ctx.shadowBlur=5; ctx.stroke(); ctx.shadowBlur=0;
+  }
+  // Centre
+  ctx.beginPath(); ctx.arc(cx,cy,r*.06,0,Math.PI*2);
+  ctx.fillStyle=val==null?'rgba(74,112,144,.4)':col; ctx.fill();
+  // Value text
+  const ac2=(val!=null&&warn&&val>warn)?'#ff2244':col;
+  ctx.fillStyle=val==null?'rgba(74,112,144,.55)':ac2;
+  ctx.font=`bold ${Math.max(9,r*.26)}px Share Tech Mono`;
+  ctx.textAlign='center';
+  ctx.fillText(val==null?'—':(val<100?val.toFixed(1):Math.round(val)),cx,cy+r*.2);
+  ctx.fillStyle='rgba(74,112,144,.75)';
+  ctx.font=`${Math.max(6,r*.16)}px Orbitron`;
+  ctx.fillText(label,cx,cy+r*.42);
+  ctx.fillStyle='rgba(74,112,144,.5)';
+  ctx.font=`${Math.max(5,r*.13)}px Share Tech Mono`;
+  ctx.fillText(unit,cx,cy+r*.58);
+  ctx.textAlign='left';
+}
+
+function pwmBar(x,y,w,h,val,max,col,label){
+  const pct=val/max;
+  ctx.fillStyle='rgba(26,58,92,.5)'; ctx.beginPath(); ctx.rect(x,y,w,h); ctx.fill();
+  if(pct>0){ctx.fillStyle=col;ctx.shadowColor=col;ctx.shadowBlur=5;ctx.beginPath();ctx.rect(x,y,w*pct,h);ctx.fill();ctx.shadowBlur=0;}
+  ctx.strokeStyle='rgba(26,58,92,.7)';ctx.lineWidth=1;ctx.beginPath();ctx.rect(x,y,w,h);ctx.stroke();
+  ctx.fillStyle='rgba(200,223,240,.65)';ctx.font=`${Math.max(7,h*.65)}px Orbitron`;ctx.textAlign='left';ctx.fillText(label,x,y-3);
+  ctx.fillStyle=pct>0?col:'rgba(74,112,144,.5)';ctx.font=`bold ${Math.max(8,h*.8)}px Share Tech Mono`;ctx.textAlign='right';
+  ctx.fillText(Math.round(val),x+w,y-3);ctx.textAlign='left';
+}
+
+function valveCircle(cx,cy,r,open){
+  const col=open?'#39ff14':'#ff3a3a';
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
+  ctx.strokeStyle=col; ctx.lineWidth=2;
+  ctx.shadowColor=col; ctx.shadowBlur=12; ctx.stroke(); ctx.shadowBlur=0;
+  ctx.beginPath(); ctx.arc(cx,cy,r*.7,0,Math.PI*2);
+  ctx.fillStyle=open?'rgba(57,255,20,.07)':'rgba(255,58,58,.07)'; ctx.fill();
+  ctx.fillStyle=col; ctx.font=`bold ${Math.max(7,r*.34)}px Orbitron`; ctx.textAlign='center';
+  ctx.fillText(open?'OPEN':'CLOSED',cx,cy+r*.12);
+  ctx.fillStyle='rgba(74,112,144,.65)'; ctx.font=`${Math.max(5,r*.22)}px Share Tech Mono`;
+  ctx.fillText('VALVE',cx,cy+r*.42); ctx.textAlign='left';
+}
+
+function draw(){
+  ctx.clearRect(0,0,CW,CH);
+  const bg=ctx.createRadialGradient(CW/2,0,0,CW/2,CH/2,CW*.8);
+  bg.addColorStop(0,'#0c1d33'); bg.addColorStop(1,'#060c14');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,CW,CH);
+
+  // Layout: 6 gauges in 2 rows of 3, then bars below
+  const cols=3, rows=2;
+  const gMaxR = Math.min(CW/(cols*2.6), CH*0.35, 74);
+  const gR = gMaxR;
+  const rowH = CH * 0.42;
+  const gY1 = rowH*0.5;
+  const gY2 = rowH*1.15;
+  const xs  = [CW/6, CW/2, CW*5/6];
+
+  gauge(xs[0],gY1,gR, S.voltage,       30,  '#fbbf24', 'VOLTAGE',  'V',    null);
+  gauge(xs[1],gY1,gR, S.current,       10,  '#f472b6', 'CURRENT',  'A',    null);
+  gauge(xs[2],gY1,gR, S.air_pressure,  1000,'#00d4ff', 'AIR PRES', '0-1k', 850);
+
+  gauge(xs[0],gY2,gR, S.water_pressure,1000,'#a78bfa', 'WATER P',  '0-1k', 850);
+  gauge(xs[1],gY2,gR, S.temperature,   1000,'#ff6b1a', 'TEMP',     '0-1k', 900);
+  gauge(xs[2],gY2,gR, S.flow_rate,     1000,'#39ff14', 'FLOW',     '0-1k', null);
+
+  // Divider
+  const divY = gY2 + gR + 14;
+  ctx.strokeStyle='rgba(26,58,92,.4)';ctx.lineWidth=1;ctx.setLineDash([4,6]);
+  ctx.beginPath();ctx.moveTo(CW*.05,divY);ctx.lineTo(CW*.95,divY);ctx.stroke();ctx.setLineDash([]);
+
+  // PWM bars
+  const bH = Math.max(9,Math.min(16,CH*.022));
+  const bW = CW*.34;
+  const bY1 = divY+14, bY2 = bY1+bH+22;
+  pwmBar(CW*.06,bY1,bW,bH, ACT.air_pump_value,  100,'#00d4ff','AIR PUMP');
+  pwmBar(CW*.06,bY2,bW,bH, ACT.water_pump_value,100,'#a78bfa','WATER PUMP');
+
+  // Valve
+  const vR = Math.min(bH*1.6,22);
+  valveCircle(CW*.78, bY1+bH+10, vR, ACT.valve_state==='open');
+
+  // Timestamp
+  if(S.timestamp){
+    ctx.fillStyle='rgba(74,112,144,.4)';ctx.font=`${Math.max(7,CW*.016)}px Share Tech Mono`;
+    ctx.textAlign='right'; ctx.fillText('Last: '+new Date(S.timestamp).toLocaleTimeString(),CW-8,CH-7);
+    ctx.textAlign='left';
   }
 }
 
-// ── API CALLS ───────────────────────────────────────────────────────
-async function apiPost(path, body){
-  const r = await fetch(API+path, {
-    method:'POST',
-    headers:{'Content-Type':'application/json','Accept':'application/json'},
-    body: JSON.stringify(body)
+// ── TREND CHARTS ───────────────────────────────────────────────────
+function lineChart2(id, d1, c1, l1, d2, c2, l2){
+  const c=document.getElementById(id); if(!c)return;
+  const p=c.parentElement;
+  const W=p.clientWidth-2, H=p.clientHeight-18;
+  c.width=W; c.height=H;
+  const g=c.getContext('2d');
+  g.clearRect(0,0,W,H);
+  g.fillStyle='rgba(4,10,18,.5)';g.fillRect(0,0,W,H);
+  const pd=8,cW=W-pd*2,cH=H-pd*2;
+
+  function drawSeries(data,col){
+    const valid=data.filter(v=>v!=null);
+    if(valid.length<2){g.fillStyle='rgba(74,112,144,.3)';g.font='9px Rajdhani';g.textAlign='center';g.fillText('No data',W/2,H/2);return;}
+    const mn=Math.min(...valid),mx=Math.max(...valid),rng=Math.max(mx-mn,0.01);
+    const pts=data.map((v,i)=>({x:pd+(i/(data.length-1))*cW,y:v==null?null:pd+cH-((v-mn)/rng)*cH}));
+    g.beginPath();let st=false;
+    pts.forEach(p=>{if(p.y==null){st=false;return;}st?g.lineTo(p.x,p.y):g.moveTo(p.x,p.y);st=true;});
+    g.strokeStyle=col;g.lineWidth=1.6;g.stroke();
+    const lp=[...pts].reverse().find(p=>p.y!=null);
+    if(lp){g.beginPath();g.arc(lp.x,lp.y,2.5,0,Math.PI*2);g.fillStyle=col;g.shadowColor=col;g.shadowBlur=5;g.fill();g.shadowBlur=0;}
+  }
+  drawSeries(d1,c1); drawSeries(d2,c2);
+
+  // Legend
+  [[c1,l1],[c2,l2]].forEach(([col,lbl],i)=>{
+    const x=pd+i*(cW/2),y=pd+8;
+    g.fillStyle=col;g.beginPath();g.rect(x,y-4,8,4);g.fill();
+    g.fillStyle='rgba(74,112,144,.6)';g.font='7px Share Tech Mono';g.textAlign='left';
+    g.fillText(lbl,x+10,y);
   });
-  return {ok:r.ok, status:r.status, data: await r.json().catch(()=>({}))};
-}
-async function apiGet(path){
-  const r = await fetch(API+path, {headers:{'Accept':'application/json'}});
-  return {ok:r.ok, status:r.status, data: await r.json().catch(()=>({}))};
-}
-async function apiDelete(path){
-  const r = await fetch(API+path, {method:'DELETE',headers:{'Accept':'application/json'}});
-  return {ok:r.ok, status:r.status, data: await r.json().catch(()=>({}))};
 }
 
-function setStatus(id, msg, ok){
-  const el = document.getElementById(id);
-  if(!el)return;
-  el.textContent = msg;
-  el.style.color = ok===true ? '#39ff14' : ok===false ? '#ff3a3a' : 'var(--muted)';
+function drawCharts(){
+  lineChart2('ch0', hAirP,'#00d4ff','AirP', hWtrP,'#a78bfa','WtrP');
+  lineChart2('ch1', hTemp,'#ff6b1a','Temp', hFlow,'#39ff14','Flow');
+  lineChart2('ch2', hVolt,'#fbbf24','Volt', hCurr,'#f472b6','Curr');
 }
 
-// ── ACTUATOR SENDS ───────────────────────────────────────────────────
-async function sendAirPump(){
-  const pwm = parseInt(document.getElementById('sl_air').value);
-  setStatus('ss_air','⟳ Sending…', null);
-  try{
-    const r = await apiPost('/control/air-pump',{pwm});
-    if(r.ok){
-      setStatus('ss_air','✓ Air pump set to PWM '+pwm, true);
-      document.getElementById('act_ts').textContent = new Date().toLocaleTimeString();
-    } else {
-      setStatus('ss_air','✕ Error '+r.status, false);
-    }
-  } catch(e){ setStatus('ss_air','✕ '+e.message, false); }
+// ── APPLY DATA ──────────────────────────────────────────────────────
+function applyReading(d){
+  if(!d)return;
+  S.voltage       = +d.voltage;
+  S.current       = +d.current;
+  S.air_pressure  = +d.air_pressure;
+  S.water_pressure= +d.water_pressure;
+  S.temperature   = +d.temperature;
+  S.flow_rate     = +d.flow_rate;
+  S.timestamp     = d.timestamp||new Date().toISOString();
+  const ts = new Date(S.timestamp).toLocaleTimeString();
+
+  // Metric bar
+  document.getElementById('mv_volt').textContent  = S.voltage.toFixed(1);
+  document.getElementById('mv_curr').textContent  = S.current.toFixed(2);
+  document.getElementById('mv_airp').textContent  = S.air_pressure.toFixed(1);
+  document.getElementById('mv_wtrp').textContent  = S.water_pressure.toFixed(1);
+  document.getElementById('mv_temp').textContent  = S.temperature.toFixed(1);
+  document.getElementById('mv_flow').textContent  = S.flow_rate.toFixed(1);
+
+  // Left panel sidebar
+  const MAP = [
+    ['volt', S.voltage,        30,   'V'],
+    ['curr', S.current,        10,   'A'],
+    ['airp', S.air_pressure,   1000, ''],
+    ['wtrp', S.water_pressure, 1000, ''],
+    ['temp', S.temperature,    1000, ''],
+    ['flow', S.flow_rate,      1000, ''],
+  ];
+  MAP.forEach(([k,v,mx,u])=>{
+    document.getElementById('sv_'+k).textContent  = v.toFixed(k==='curr'?2:1)+(u?` ${u}`:'');
+    document.getElementById('sgb_'+k).style.width = Math.min(100,(v/mx*100)).toFixed(1)+'%';
+    document.getElementById('sts_'+k).textContent = ts;
+  });
+
+  // Push chart arrays
+  hVolt.push(S.voltage);       hVolt.shift();
+  hCurr.push(S.current);       hCurr.shift();
+  hAirP.push(S.air_pressure);  hAirP.shift();
+  hWtrP.push(S.water_pressure);hWtrP.shift();
+  hTemp.push(S.temperature);   hTemp.shift();
+  hFlow.push(S.flow_rate);     hFlow.shift();
+
+  checkAlarms();
+  drawCharts();
 }
 
-async function sendWaterPump(){
-  const pwm = parseInt(document.getElementById('sl_water').value);
-  setStatus('ss_water','⟳ Sending…', null);
-  try{
-    const r = await apiPost('/control/water-pump',{pwm});
-    if(r.ok){
-      setStatus('ss_water','✓ Water pump set to PWM '+pwm, true);
-      document.getElementById('act_ts').textContent = new Date().toLocaleTimeString();
-    } else {
-      setStatus('ss_water','✕ Error '+r.status, false);
-    }
-  } catch(e){ setStatus('ss_water','✕ '+e.message, false); }
+function applyActuator(d){
+  if(!d)return;
+  if(d.air_pump_value  !=null) ACT.air_pump_value   = d.air_pump_value;
+  if(d.water_pump_value!=null) ACT.water_pump_value = d.water_pump_value;
+  if(d.valve_state     !=null) ACT.valve_state       = d.valve_state;
+
+  const slA = document.getElementById('sl_air');
+  slA.value = ACT.air_pump_value;
+  slA.style.setProperty('--pct',(ACT.air_pump_value)+'%');
+  document.getElementById('pv_air').textContent = ACT.air_pump_value;
+  setBadge('ab_air', ACT.air_pump_value>0?`ON · ${ACT.air_pump_value}`:'OFF', ACT.air_pump_value>0?'ab-on':'ab-off');
+
+  const slW = document.getElementById('sl_water');
+  slW.value = ACT.water_pump_value;
+  slW.style.setProperty('--pct',(ACT.water_pump_value)+'%');
+  document.getElementById('pv_water').textContent = ACT.water_pump_value;
+  setBadge('ab_water', ACT.water_pump_value>0?`ON · ${ACT.water_pump_value}`:'OFF', ACT.water_pump_value>0?'ab-on':'ab-off');
+
+  setBadge('ab_valve', ACT.valve_state.toUpperCase(), ACT.valve_state==='open'?'ab-open':'ab-closed');
+  document.getElementById('mv_air').textContent   = ACT.air_pump_value;
+  document.getElementById('mv_water').textContent = ACT.water_pump_value;
+  document.getElementById('mv_valve').textContent = ACT.valve_state.toUpperCase();
+  document.getElementById('mc_valve').style.setProperty('--mc-col', ACT.valve_state==='open'?'#39ff14':'#ff3a3a');
 }
 
-async function sendValve(state){
-  setStatus('ss_valve','⟳ Sending…', null);
-  try{
-    const r = await apiPost('/control/valve',{state});
-    if(r.ok){
-      setStatus('ss_valve','✓ Valve → '+state.toUpperCase(), true);
-      const badge = document.getElementById('ab_valve');
-      if(state==='open'){badge.textContent='OPEN';badge.className='act-badge badge-open';}
-      else{badge.textContent='CLOSED';badge.className='act-badge badge-closed';}
-      document.getElementById('act_ts').textContent = new Date().toLocaleTimeString();
-    } else {
-      setStatus('ss_valve','✕ Error '+r.status, false);
-    }
-  } catch(e){ setStatus('ss_valve','✕ '+e.message, false); }
-}
-
-// ── CLEAR READINGS ───────────────────────────────────────────────────
-async function clearReadings(){
-  if(!confirm('Delete ALL sensor readings from the database? This cannot be undone.'))return;
-  try{
-    const r = await apiDelete('/sensors/clear');
-    if(r.ok){
-      histData = [];
-      hFlow.fill(null); hTemp.fill(null); hPres.fill(null);
-      lastReading = null;
-      updateKPIs(null);
-      renderHistory([]);
-      drawCharts();
-      setConnStatus(true,'● Connected — readings cleared');
-    }
-  } catch(e){ alert('Clear failed: '+e.message); }
-}
-
-// ── SENSOR POLL ──────────────────────────────────────────────────────
-async function pollSensors(){
-  try{
-    const r = await apiGet('/sensors/history?limit='+MAXHIST);
-    if(r.ok && Array.isArray(r.data)){
-      histData = r.data;
-      const latest = histData[0] || null;
-      lastReading = latest;
-      updateKPIs(latest);
-      // push into chart arrays
-      const forChart = [...histData].reverse().slice(-CHART_LEN);
-      hFlow = new Array(CHART_LEN).fill(null);
-      hTemp = new Array(CHART_LEN).fill(null);
-      hPres = new Array(CHART_LEN).fill(null);
-      forChart.forEach((d,i)=>{
-        hFlow[i]=d.flow_rate;
-        hTemp[i]=d.temperature;
-        hPres[i]=d.pressure;
-      });
-      drawCharts();
-      renderHistory(histData);
-      setConnStatus(true,'● Connected · '+(histData.length)+' records');
-    } else if(r.ok && Array.isArray(r.data?.data)){
-      // handle {data:[...]} wrapper
-      const rows = r.data.data;
-      histData = rows;
-      const latest = rows[0]||null;
-      lastReading=latest;
-      updateKPIs(latest);
-      const forChart=[...rows].reverse().slice(-CHART_LEN);
-      hFlow=new Array(CHART_LEN).fill(null);
-      hTemp=new Array(CHART_LEN).fill(null);
-      hPres=new Array(CHART_LEN).fill(null);
-      forChart.forEach((d,i)=>{hFlow[i]=d.flow_rate;hTemp[i]=d.temperature;hPres[i]=d.pressure;});
-      drawCharts();
-      renderHistory(rows);
-      setConnStatus(true,'● Connected · '+rows.length+' records');
-    } else {
-      setConnStatus(false,'⚠ Bad response');
-    }
-  } catch(e){
-    setConnStatus(false,'✕ Offline');
-  }
-}
-
-// Also poll actuator state
-async function pollActuatorState(){
-  try{
-    const r = await apiGet('/control/state');
-    if(r.ok){
-      const d = r.data?.data || r.data || {};
-      // Air pump
-      const airPwm = d.air_pump_pwm ?? d.air_pump ?? null;
-      if(airPwm !== null){
-        document.getElementById('sl_air').value = airPwm;
-        updatePwmDisplay('air', airPwm);
-      }
-      // Water pump
-      const waterPwm = d.water_pump_pwm ?? d.water_pump ?? null;
-      if(waterPwm !== null){
-        document.getElementById('sl_water').value = waterPwm;
-        updatePwmDisplay('water', waterPwm);
-      }
-      // Valve
-      const valveState = d.valve_state ?? d.valve ?? null;
-      if(valveState){
-        const badge = document.getElementById('ab_valve');
-        if(valveState==='open'){badge.textContent='OPEN';badge.className='act-badge badge-open';}
-        else{badge.textContent='CLOSED';badge.className='act-badge badge-closed';}
-      }
-    }
-  } catch(e){}
-}
-
-// ── UI UPDATES ───────────────────────────────────────────────────────
-function setConnStatus(ok, msg){
-  const el = document.getElementById('connStatus');
-  el.textContent = msg;
-  el.style.color = ok ? '#39ff14' : '#ff3a3a';
-}
-
-function updateKPIs(d){
-  if(!d){
-    ['flow','temp','pres'].forEach(k=>{
-      document.getElementById('kv_'+k).textContent = '—';
-      document.getElementById('gb_'+k).style.width = '0%';
-      document.getElementById('kt_'+k).textContent = 'No data';
-    });
-    return;
-  }
-  const ts = d.timestamp||d.created_at||d.ts||'';
-  const tsStr = ts ? new Date(ts).toLocaleTimeString() : '';
-
-  function setKpi(key, val){
-    const v = parseFloat(val)||0;
-    document.getElementById('kv_'+key).textContent = v.toFixed(1);
-    document.getElementById('gb_'+key).style.width = Math.min(100,(v/1000*100)).toFixed(1)+'%';
-    if(tsStr) document.getElementById('kt_'+key).textContent = tsStr;
-  }
-  setKpi('flow', d.flow_rate);
-  setKpi('temp', d.temperature);
-  setKpi('pres', d.pressure);
-}
+function setBadge(id,text,cls){const el=document.getElementById(id);el.textContent=text;el.className='abadge '+cls;}
 
 function renderHistory(rows){
-  document.getElementById('hist_count').textContent = rows.length+' record'+(rows.length!==1?'s':'');
-  const tbody = document.getElementById('hist_body');
-  if(!rows.length){
-    tbody.innerHTML='<tr><td colspan="4" style="color:var(--muted);text-align:center;padding:20px 0;font-family:Rajdhani,sans-serif;font-size:.78rem;">No readings yet</td></tr>';
-    return;
-  }
-  tbody.innerHTML = rows.slice(0,50).map(d=>{
-    const ts = d.timestamp||d.created_at||d.ts||'';
-    const t = ts ? new Date(ts).toLocaleTimeString() : '—';
+  document.getElementById('hcount').textContent=rows.length;
+  const tb=document.getElementById('hist_body');
+  if(!rows.length){tb.innerHTML='<tr><td colspan="7" style="color:var(--muted);text-align:center;padding:12px 0;font-size:.75rem">No data yet</td></tr>';return;}
+  tb.innerHTML=rows.slice(0,50).map(d=>{
+    const t=d.timestamp?new Date(d.timestamp).toLocaleTimeString():'—';
     return `<tr>
       <td style="color:var(--muted)">${t}</td>
-      <td style="color:#00d4ff">${(+d.flow_rate).toFixed(1)}</td>
-      <td style="color:#ff6b1a">${(+d.temperature).toFixed(1)}</td>
-      <td style="color:#a78bfa">${(+d.pressure).toFixed(1)}</td>
+      <td style="color:var(--amber)">${(+d.voltage).toFixed(1)}</td>
+      <td style="color:var(--rose)">${(+d.current).toFixed(2)}</td>
+      <td style="color:var(--accent)">${(+d.air_pressure).toFixed(1)}</td>
+      <td style="color:var(--grape)">${(+d.water_pressure).toFixed(1)}</td>
+      <td style="color:var(--accent2)">${(+d.temperature).toFixed(1)}</td>
+      <td style="color:var(--accent3)">${(+d.flow_rate).toFixed(1)}</td>
     </tr>`;
   }).join('');
 }
 
-// ── MINI LINE CHARTS ─────────────────────────────────────────────────
-function drawLine(id, data, color){
-  const c = document.getElementById(id);
-  if(!c)return;
-  const p = c.parentElement;
-  const W = p.clientWidth-2, H = p.clientHeight-2;
-  c.width=W; c.height=H;
-  const g = c.getContext('2d');
-  g.clearRect(0,0,W,H);
-  g.fillStyle='rgba(4,10,18,.55)'; g.fillRect(0,0,W,H);
-
-  const valid = data.filter(v=>v!==null);
-  if(valid.length<2){
-    g.fillStyle='rgba(74,112,144,.4)';g.font='11px Rajdhani';g.textAlign='center';
-    g.fillText('Waiting for data…',W/2,H/2);
-    return;
-  }
-  const mn=0, mx=1000, rng=1000;
-  const pd=10,cW=W-pd*2,cH=H-pd*2;
-
-  // Grid lines
-  for(let i=0;i<=4;i++){
-    const y=pd+cH-(i/4)*cH;
-    g.strokeStyle='rgba(26,58,92,.3)'; g.lineWidth=1; g.setLineDash([2,4]);
-    g.beginPath(); g.moveTo(pd,y); g.lineTo(W-pd,y); g.stroke(); g.setLineDash([]);
-    g.fillStyle='rgba(74,112,144,.45)'; g.font='9px Share Tech Mono'; g.textAlign='right';
-    g.fillText(Math.round(1000*(i/4)),pd-2,y+3);
-  }
-  g.textAlign='left';
-
-  // Gradient fill
-  const aG=g.createLinearGradient(0,pd,0,pd+cH);
-  aG.addColorStop(0,color+'33'); aG.addColorStop(1,'rgba(0,0,0,0)');
-
-  // Only draw non-null segments
-  const pts = data.map((v,i)=>({x:pd+(i/(data.length-1))*cW, y:v===null?null:pd+cH-((v-mn)/rng)*cH, v}));
-
-  g.beginPath();
-  let started=false;
-  pts.forEach(p=>{
-    if(p.y===null){started=false;return;}
-    if(!started){g.moveTo(p.x,p.y);started=true;}
-    else g.lineTo(p.x,p.y);
-  });
-  g.strokeStyle=color; g.lineWidth=1.8; g.stroke();
-
-  // last valid dot
-  const lastPt = [...pts].reverse().find(p=>p.y!==null);
-  if(lastPt){
-    g.beginPath(); g.arc(lastPt.x,lastPt.y,3,0,Math.PI*2);
-    g.fillStyle=color; g.shadowColor=color; g.shadowBlur=6; g.fill(); g.shadowBlur=0;
-    g.fillStyle=color; g.font='bold 9px Share Tech Mono'; g.textAlign='right';
-    g.fillText(lastPt.v.toFixed(0),W-pd,pd+10);
-  }
+function setConn(ok,msg){
+  document.getElementById('sdot').className='sdot'+(ok?'':' offline');
+  document.getElementById('connLabel').textContent=msg;
+  document.getElementById('connLabel').style.color=ok?'#39ff14':'#ff3a3a';
 }
 
-function drawCharts(){
-  drawLine('ch_flow', hFlow, '#00d4ff');
-  drawLine('ch_temp', hTemp, '#ff6b1a');
-  drawLine('ch_pres', hPres, '#a78bfa');
+// ── SSE STREAMING ───────────────────────────────────────────────────
+function connectSSE(){
+  if(sseConn){sseConn.close();sseConn=null;}
+  clearInterval(fallbackTimer);
+  try{
+    sseConn=new EventSource(API+'/stream');
+    sseConn.addEventListener('sensor',e=>{
+      try{applyReading(JSON.parse(e.data));setConn(true,'● LIVE · SSE');document.getElementById('streamDot').className='stream-dot';}catch(_){}
+    });
+    sseConn.addEventListener('actuator',e=>{
+      try{applyActuator(JSON.parse(e.data));}catch(_){}
+    });
+    sseConn.onopen=()=>{setConn(true,'● LIVE · SSE');log('SSE stream connected','ok');};
+    sseConn.onerror=()=>{
+      sseConn.close();sseConn=null;
+      document.getElementById('streamDot').className='stream-dot dead';
+      setConn(false,'SSE failed — polling');
+      log('SSE failed, polling','warn');
+      startPoll();
+    };
+  }catch(e){startPoll();}
 }
+
+function startPoll(){
+  clearInterval(fallbackTimer);
+  pollOnce();
+  fallbackTimer=setInterval(pollOnce,POLL_MS);
+}
+
+async function pollOnce(){
+  try{
+    const [sr,ar]=await Promise.all([
+      fetch(API+'/sensors/history?limit=60').then(r=>r.json()),
+      fetch(API+'/control/state').then(r=>r.json()),
+    ]);
+    const rows=Array.isArray(sr)?sr:(sr.data||[]);
+    if(rows.length){
+      applyReading(rows[0]);
+      const fc=[...rows].reverse().slice(-CHART_LEN);
+      hVolt.fill(null);hCurr.fill(null);hAirP.fill(null);hWtrP.fill(null);hTemp.fill(null);hFlow.fill(null);
+      fc.forEach((d,i)=>{hVolt[i]=+d.voltage;hCurr[i]=+d.current;hAirP[i]=+d.air_pressure;hWtrP[i]=+d.water_pressure;hTemp[i]=+d.temperature;hFlow[i]=+d.flow_rate;});
+      renderHistory(rows);
+    }
+    applyActuator(ar.data||ar);
+    setConn(true,'● POLL · '+(rows.length)+' recs');
+    document.getElementById('streamDot').className='stream-dot';
+  }catch(e){setConn(false,'✕ Offline');document.getElementById('streamDot').className='stream-dot dead';}
+}
+
+function reconnect(){
+  API=document.getElementById('apiBase').value.replace(/\/+$/,'');
+  log('Connecting → '+API,'ok');
+  fetch(API+'/sensors/history?limit=60').then(r=>r.json())
+    .then(sd=>{const rows=Array.isArray(sd)?sd:(sd.data||[]);renderHistory(rows);}).catch(()=>{});
+  connectSSE();
+}
+
+// ── ACTUATOR SENDS ──────────────────────────────────────────────────
+async function apiPost(path,body){
+  const r=await fetch(API+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  return{ok:r.ok,data:await r.json().catch(()=>({}))};
+}
+function setStat(id,msg,state){const el=document.getElementById(id);el.textContent=msg;el.style.color=state===1?'#39ff14':state===0?'#ff3a3a':'var(--muted)';}
+function sliderMove(w,v){
+  document.getElementById('pv_'+w).textContent=v;
+  document.getElementById('sl_'+w).style.setProperty('--pct',v+'%');
+}
+async function sendAir(){
+  const v=parseInt(document.getElementById('sl_air').value);
+  setStat('ss_air','⟳ Sending…',null);
+  try{const r=await apiPost('/control/air-pump',{value:v});if(r.ok){ACT.air_pump_value=v;applyActuator(ACT);setStat('ss_air','✓ Set '+v,1);log('Air pump → '+v,'ok');}else setStat('ss_air','✕ '+r.status,0);}
+  catch(e){setStat('ss_air','✕ '+e.message,0);}
+}
+async function sendAirQ(v){document.getElementById('sl_air').value=v;sliderMove('air',v);await sendAir();}
+async function sendWater(){
+  const v=parseInt(document.getElementById('sl_water').value);
+  setStat('ss_water','⟳ Sending…',null);
+  try{const r=await apiPost('/control/water-pump',{value:v});if(r.ok){ACT.water_pump_value=v;applyActuator(ACT);setStat('ss_water','✓ Set '+v,1);log('Water pump → '+v,'ok');}else setStat('ss_water','✕ '+r.status,0);}
+  catch(e){setStat('ss_water','✕ '+e.message,0);}
+}
+async function sendWaterQ(v){document.getElementById('sl_water').value=v;sliderMove('water',v);await sendWater();}
+async function sendValve(state){
+  setStat('ss_valve','⟳ Sending…',null);
+  try{const r=await apiPost('/control/valve',{state});if(r.ok){ACT.valve_state=state;applyActuator(ACT);setStat('ss_valve','✓ Valve '+state.toUpperCase(),1);log('Valve → '+state.toUpperCase(),'ok');}else setStat('ss_valve','✕ '+r.status,0);}
+  catch(e){setStat('ss_valve','✕ '+e.message,0);}
+}
+
+// ── CLEAR ───────────────────────────────────────────────────────────
+async function clearReadings(){
+  if(!confirm('Delete ALL sensor readings?'))return;
+  try{
+    const r=await fetch(API+'/sensors/clear',{method:'DELETE'});
+    if(r.ok){
+      S={voltage:null,current:null,air_pressure:null,water_pressure:null,temperature:null,flow_rate:null,timestamp:null};
+      [hVolt,hCurr,hAirP,hWtrP,hTemp,hFlow].forEach(a=>a.fill(null));
+      renderHistory([]);drawCharts();
+      ['volt','curr','airp','wtrp','temp','flow'].forEach(k=>{
+        document.getElementById('sv_'+k).textContent='—';
+        document.getElementById('sgb_'+k).style.width='0%';
+        document.getElementById('sts_'+k).textContent='Cleared';
+      });
+      ['mv_volt','mv_curr','mv_airp','mv_wtrp','mv_temp','mv_flow'].forEach(id=>document.getElementById(id).textContent='—');
+      log('All readings cleared','warn');
+    }
+  }catch(e){alert('Clear failed: '+e.message);}
+}
+
+// ── ALARMS ──────────────────────────────────────────────────────────
+function checkAlarms(){
+  alarms=[];
+  if(S.air_pressure  !=null&&S.air_pressure   >850)alarms.push({t:'crit',m:`Air pressure HIGH: ${S.air_pressure.toFixed(1)}`});
+  if(S.water_pressure!=null&&S.water_pressure  >850)alarms.push({t:'crit',m:`Water pressure HIGH: ${S.water_pressure.toFixed(1)}`});
+  if(S.temperature   !=null&&S.temperature     >900)alarms.push({t:'crit',m:`Temperature HIGH: ${S.temperature.toFixed(1)}`});
+  if(S.voltage       !=null&&S.voltage         >25) alarms.push({t:'warn',m:`Voltage HIGH: ${S.voltage.toFixed(1)} V`});
+  if(S.current       !=null&&S.current         >8)  alarms.push({t:'warn',m:`Current HIGH: ${S.current.toFixed(2)} A`});
+  if(S.flow_rate     !=null&&S.flow_rate       <50&&S.flow_rate>0)alarms.push({t:'warn',m:`Flow rate LOW: ${S.flow_rate.toFixed(1)}`});
+  if(ACT.air_pump_value===0&&ACT.water_pump_value===0)alarms.push({t:'warn',m:'Both pumps are OFF'});
+
+  const al=document.getElementById('alarmList');
+  const strip=document.getElementById('alarmStrip');
+  const ack=document.getElementById('btnAck');
+  if(!alarms.length){al.innerHTML='<div class="noal">No active alarms</div>';strip.classList.remove('on');ack.style.display='none';}
+  else{
+    al.innerHTML=alarms.map(a=>`<div class="ai ${a.t}"><span>${a.t==='crit'?'🔴':'🟡'}</span>${a.m}</div>`).join('');
+    strip.classList.add('on');ack.style.display='';
+  }
+}
+function ackAlarms(){alarms=[];document.getElementById('alarmList').innerHTML='<div class="noal">Acknowledged</div>';document.getElementById('alarmStrip').classList.remove('on');document.getElementById('btnAck').style.display='none';log('Alarms acknowledged','ok');}
+
+// ── LOG ─────────────────────────────────────────────────────────────
+function log(msg,type=''){
+  const n=new Date(),ts=[n.getHours(),n.getMinutes(),n.getSeconds()].map(v=>String(v).padStart(2,'0')).join(':');
+  logs.unshift({msg,type,ts});if(logs.length>60)logs.pop();
+  document.getElementById('elog').innerHTML=logs.map(e=>`<div class="le ${e.type}"><span>[${e.ts}]</span> ${e.msg}</div>`).join('');
+}
+
+// ── CLOCK ───────────────────────────────────────────────────────────
+function clockTick(){
+  const n=new Date();
+  document.getElementById('hdr_time').textContent=[n.getHours(),n.getMinutes(),n.getSeconds()].map(v=>String(v).padStart(2,'0')).join(':');
+}
+setInterval(clockTick,1000);clockTick();
+
+// ── PANEL TOGGLES ───────────────────────────────────────────────────
+function deskToggle(id){document.getElementById(id).classList.toggle('collapsed');setTimeout(()=>{resizeCanvas();drawCharts();},300);}
+function mobToggle(id){
+  const el=document.getElementById(id),other=id==='lp'?'rp':'lp';
+  if(el.classList.contains('collapsed')){el.classList.remove('collapsed');document.getElementById(other).classList.add('collapsed');}
+  else el.classList.add('collapsed');
+}
+document.addEventListener('click',e=>{
+  if(window.innerWidth>860)return;
+  const lp=document.getElementById('lp'),rp=document.getElementById('rp');
+  if(!lp.contains(e.target)&&!document.getElementById('mobL').contains(e.target))lp.classList.add('collapsed');
+  if(!rp.contains(e.target)&&!document.getElementById('mobR').contains(e.target))rp.classList.add('collapsed');
+});
+if(window.innerWidth<=860){document.getElementById('lp').classList.add('collapsed');document.getElementById('rp').classList.add('collapsed');}
+
+// ── ANIMATION LOOP ───────────────────────────────────────────────────
+function loop(){draw();requestAnimationFrame(loop);}
+
+// ── RESIZE ───────────────────────────────────────────────────────────
+let resT;
+const ro=new ResizeObserver(()=>{clearTimeout(resT);resT=setTimeout(()=>{resizeCanvas();drawCharts();},60);});
+ro.observe(document.getElementById('ctop'));
+ro.observe(document.getElementById('lp'));
+ro.observe(document.getElementById('rp'));
 
 // ── INIT ─────────────────────────────────────────────────────────────
-// Init sliders
-updatePwmDisplay('air',0);
-updatePwmDisplay('water',0);
-document.getElementById('sl_air').style.setProperty('--pct','0%');
-document.getElementById('sl_water').style.setProperty('--pct','0%');
-
-// Start polling
-pollSensors();
-pollActuatorState();
-setInterval(pollSensors, POLL_MS);
-setInterval(pollActuatorState, 5000);
-
-// Resize observer for charts
-const ro = new ResizeObserver(()=>drawCharts());
-['ch_flow','ch_temp','ch_pres'].forEach(id=>{
-  const el=document.getElementById(id);
-  if(el)ro.observe(el.parentElement);
-});
+resizeCanvas();
+checkAlarms();
+log('PumpCtrl Dashboard v3.0 — 6 sensors active','ok');
+log('Streams: voltage · current · air pressure · water pressure · temperature · flow rate','');
+connectSSE();
+loop();
 </script>
 </body>
 </html>
