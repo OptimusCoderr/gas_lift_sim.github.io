@@ -4,78 +4,57 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PumpCtrl — API Reference</title>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#060c14;--panel:#0a1628;--border:#1a3a5c;
-  --accent:#00d4ff;--accent2:#ff6b1a;--accent3:#39ff14;
-  --grape:#a78bfa;--text:#c8dff0;--muted:#4a7090;
-}
+:root{--bg:#060c14;--panel:#0a1628;--border:#1a3a5c;--accent:#00d4ff;--accent2:#ff6b1a;--accent3:#39ff14;--grape:#a78bfa;--text:#c8dff0;--muted:#4a7090;}
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;}
-/* NAV */
 .topbar{display:flex;align-items:stretch;background:linear-gradient(90deg,#071020,#060c14);border-bottom:1px solid var(--border);height:52px;position:sticky;top:0;z-index:200;}
 .logo{font-family:'Orbitron',monospace;font-size:1rem;font-weight:900;color:var(--accent);text-shadow:0 0 16px var(--accent);padding:0 22px;display:flex;align-items:center;border-right:1px solid var(--border);letter-spacing:3px;white-space:nowrap;}
 .tabnav{display:flex;flex:1;}
-.tablink{padding:0 20px;font-family:'Orbitron',monospace;font-size:.58rem;letter-spacing:2px;text-transform:uppercase;border:none;background:transparent;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;text-decoration:none;display:flex;align-items:center;}
+.tablink{padding:0 18px;font-family:'Orbitron',monospace;font-size:.55rem;letter-spacing:2px;text-transform:uppercase;border:none;background:transparent;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;text-decoration:none;display:flex;align-items:center;}
 .tablink.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(0,212,255,.05);}
 .tablink:hover:not(.active){color:var(--text);}
-.topright{display:flex;align-items:center;gap:14px;padding:0 18px;font-family:'Share Tech Mono',monospace;font-size:.65rem;}
-.sdot{width:7px;height:7px;border-radius:50%;background:var(--accent3);box-shadow:0 0 8px var(--accent3);animation:blink 2s infinite;display:inline-block;margin-right:4px;}
+.topright{display:flex;align-items:center;gap:10px;padding:0 16px;font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--muted);}
+.sdot{width:7px;height:7px;border-radius:50%;background:var(--accent3);box-shadow:0 0 8px var(--accent3);animation:blink 2s infinite;}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-/* PAGE */
-.pg{padding:28px 32px;max-width:1200px;margin:0 auto;}
-.hero{margin-bottom:24px;}
-.hero h1{font-family:'Orbitron',monospace;font-size:1.4rem;font-weight:900;color:var(--accent);letter-spacing:3px;margin-bottom:6px;}
-.hero p{font-size:.88rem;color:var(--muted);line-height:1.6;max-width:680px;}
-/* CONFIG BAR */
-.cfg{background:rgba(0,212,255,.04);border:1px solid var(--border);border-radius:6px;padding:14px 18px;margin-bottom:22px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
-.cfg-lbl{font-size:.62rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase;white-space:nowrap;}
-.cfg input{flex:1;min-width:180px;background:#020810;border:1px solid var(--border);color:var(--accent);font-family:'Share Tech Mono',monospace;font-size:.8rem;padding:5px 10px;border-radius:4px;outline:none;}
+.pg{padding:24px 28px;max-width:1180px;margin:0 auto;}
+.hero{margin-bottom:20px;}
+.hero h1{font-family:'Orbitron',monospace;font-size:1.3rem;font-weight:900;color:var(--accent);letter-spacing:3px;margin-bottom:5px;}
+.hero p{font-size:.85rem;color:var(--muted);line-height:1.6;max-width:700px;}
+.cfg{background:rgba(0,212,255,.04);border:1px solid var(--border);border-radius:6px;padding:12px 16px;margin-bottom:20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.cfg-lbl{font-size:.6rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase;white-space:nowrap;}
+.cfg input{flex:1;min-width:200px;background:#020810;border:1px solid var(--border);color:var(--accent);font-family:'Share Tech Mono',monospace;font-size:.78rem;padding:5px 10px;border-radius:3px;outline:none;}
 .cfg input:focus{border-color:var(--accent);}
-#connDot{font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--muted);white-space:nowrap;}
-/* SECTION */
-.sec-hdr{font-family:'Orbitron',monospace;font-size:.68rem;letter-spacing:3px;color:var(--accent2);text-transform:uppercase;padding:12px 0 8px;border-bottom:1px solid var(--border);margin:24px 0 14px;}
-/* GRID */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(520px,1fr));gap:18px;}
-.full{grid-column:1/-1;}
-/* CARD */
+#connDot{font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--muted);}
+.sec-hdr{font-family:'Orbitron',monospace;font-size:.65rem;letter-spacing:3px;color:var(--accent2);text-transform:uppercase;padding:10px 0 7px;border-bottom:1px solid var(--border);margin:22px 0 14px;}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(500px,1fr));gap:16px;}
 .card{background:var(--panel);border:1px solid var(--border);border-radius:7px;overflow:hidden;}
-.card-hdr{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
-.meth{font-family:'Share Tech Mono',monospace;font-size:.68rem;font-weight:bold;padding:3px 9px;border-radius:3px;flex-shrink:0;}
+.card-hdr{padding:11px 15px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.meth{font-family:'Share Tech Mono',monospace;font-size:.65rem;font-weight:bold;padding:3px 8px;border-radius:3px;flex-shrink:0;}
 .mget{background:rgba(57,255,20,.14);color:#39ff14;border:1px solid #39ff14;}
 .mpost{background:rgba(255,107,26,.14);color:#ff6b1a;border:1px solid #ff6b1a;}
 .mdel{background:rgba(255,58,58,.14);color:#ff3a3a;border:1px solid #ff3a3a;}
-.mpatch{background:rgba(167,139,250,.14);color:#a78bfa;border:1px solid #a78bfa;}
-.ep{font-family:'Share Tech Mono',monospace;font-size:.82rem;color:var(--text);flex:1;}
-.card-body{padding:16px 18px;}
-.desc{font-size:.82rem;color:var(--muted);margin-bottom:12px;line-height:1.55;}
-/* FIELDS */
-.ftitle{font-size:.6rem;letter-spacing:2px;color:var(--accent2);text-transform:uppercase;margin-bottom:7px;font-weight:600;}
-.frow{display:flex;gap:8px;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(26,58,92,.4);font-size:.76rem;}
-.fn{font-family:'Share Tech Mono',monospace;color:var(--accent);width:170px;flex-shrink:0;}
-.ft{font-family:'Share Tech Mono',monospace;color:var(--accent2);width:68px;flex-shrink:0;font-size:.66rem;}
-.fd{color:var(--muted);flex:1;font-size:.72rem;}
-.fd code{font-family:'Share Tech Mono',monospace;background:rgba(0,212,255,.08);padding:1px 4px;border-radius:2px;font-size:.68rem;color:var(--accent);}
-/* CODE */
-.codeblock{background:#020810;border:1px solid var(--border);border-radius:4px;padding:11px 14px;font-family:'Share Tech Mono',monospace;font-size:.7rem;color:#8abfd0;overflow-x:auto;white-space:pre;margin-bottom:10px;}
-.codeblock.editable{border-color:rgba(167,139,250,.4);cursor:text;}
-.codeblock .k{color:#a78bfa;}
-.codeblock .s{color:#86efac;}
-.codeblock .n{color:#fbbf24;}
-/* BUTTONS */
-.btn{font-family:'Orbitron',monospace;font-size:.54rem;letter-spacing:1.5px;padding:6px 14px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;border-radius:3px;transition:all .2s;margin-right:7px;}
+.ep{font-family:'Share Tech Mono',monospace;font-size:.8rem;color:var(--text);flex:1;}
+.card-body{padding:14px 16px;}
+.desc{font-size:.8rem;color:var(--muted);margin-bottom:10px;line-height:1.55;}
+.ftitle{font-size:.58rem;letter-spacing:2px;color:var(--accent2);text-transform:uppercase;margin-bottom:6px;font-weight:600;}
+.frow{display:flex;gap:8px;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(26,58,92,.4);font-size:.74rem;}
+.frow:last-of-type{border-bottom:none;}
+.fn{font-family:'Share Tech Mono',monospace;color:var(--accent);width:150px;flex-shrink:0;}
+.ft{font-family:'Share Tech Mono',monospace;color:var(--accent2);width:62px;flex-shrink:0;font-size:.64rem;}
+.fd{color:var(--muted);flex:1;font-size:.7rem;}
+.fd code{font-family:'Share Tech Mono',monospace;background:rgba(0,212,255,.08);padding:1px 4px;border-radius:2px;font-size:.66rem;color:var(--accent);}
+.codeblock{background:#020810;border:1px solid var(--border);border-radius:3px;padding:10px 13px;font-family:'Share Tech Mono',monospace;font-size:.68rem;color:#8abfd0;overflow-x:auto;white-space:pre;margin-bottom:9px;cursor:text;}
+.btn{font-family:'Orbitron',monospace;font-size:.5rem;letter-spacing:1.5px;padding:5px 12px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;border-radius:3px;transition:all .2s;margin-right:6px;}
 .btn:hover{background:var(--accent);color:var(--bg);box-shadow:0 0 10px var(--accent);}
 .btn-del{border-color:#ff3a3a;color:#ff3a3a;}
 .btn-del:hover{background:#ff3a3a;color:#fff;box-shadow:0 0 10px #ff3a3a;}
-/* RESPONSE */
-.resp{background:#020810;border:1px solid rgba(57,255,20,.25);border-radius:4px;padding:11px 14px;font-family:'Share Tech Mono',monospace;font-size:.68rem;color:#86efac;margin-top:10px;display:none;max-height:200px;overflow-y:auto;white-space:pre-wrap;}
-body::-webkit-scrollbar{width:3px;}
-body::-webkit-scrollbar-thumb{background:var(--border);}
+.resp{background:#020810;border:1px solid rgba(57,255,20,.25);border-radius:3px;padding:10px 13px;font-family:'Share Tech Mono',monospace;font-size:.66rem;color:#86efac;margin-top:9px;display:none;max-height:220px;overflow-y:auto;white-space:pre-wrap;}
+body::-webkit-scrollbar{width:3px;}body::-webkit-scrollbar-thumb{background:var(--border);}
 </style>
 </head>
 <body>
-
 <div class="topbar">
   <div class="logo">PUMPCTRL</div>
   <div class="tabnav">
@@ -83,181 +62,162 @@ body::-webkit-scrollbar-thumb{background:var(--border);}
     <a class="tablink active" href="page2-api.html">&#x27E8;/&#x27E9; API</a>
     <a class="tablink" href="page3-dashboard.html">&#x25A6; Dashboard</a>
   </div>
-  <div class="topright">
-    <span><span class="sdot"></span>API DOCS</span>
-    <span style="color:var(--accent)">v1.0</span>
-  </div>
+  <div class="topright"><span class="sdot"></span><span>API v2.0</span></div>
 </div>
 
 <div class="pg">
   <div class="hero">
     <h1>API REFERENCE</h1>
-    <p>Control API for air pump, water pump, and solenoid valve. Sensor ingestion for water flow rate, temperature, and pressure. All endpoints return JSON.</p>
+    <p>Control API for air pump (gas lift, 0–100) and water pump (well pressure, 0–100), plus solenoid valve. Sensor ingestion for voltage, current, air pressure, water pressure, temperature, and flow rate.</p>
   </div>
 
-  <!-- CONFIG BAR -->
   <div class="cfg">
     <span class="cfg-lbl">API Server</span>
-    <input id="cfgBase" type="text" value="https://gas-lift-server.vercel.app" placeholder="http://localhost:3000">
-    <button class="btn" onclick="testConn()" style="white-space:nowrap;margin:0">&#9889; Test</button>
+    <input id="cfgBase" type="text" value="http://localhost:3000" placeholder="https://your-app.vercel.app">
+    <button class="btn" onclick="testConn()" style="margin:0">&#9889; Test</button>
     <span id="connDot">&#9679; Not tested</span>
   </div>
 
-  <!-- ── SECTION 1: ACTUATOR CONTROL ─────────────────────────────── -->
+  <!-- SECTION 1: ACTUATOR CONTROL -->
   <div class="sec-hdr">1 · Actuator Control</div>
   <div class="grid">
 
-    <!-- Air Pump -->
     <div class="card">
-      <div class="card-hdr">
-        <span class="meth mpost">POST</span>
-        <span class="ep">/control/air-pump</span>
-      </div>
+      <div class="card-hdr"><span class="meth mpost">POST</span><span class="ep">/control/air-pump</span></div>
       <div class="card-body">
-        <div class="desc">Set the air pump speed via PWM. Value 0 = fully off, 255 = full speed. Hardware responds immediately.</div>
+        <div class="desc">Set the air pump (gas lift inlet) speed. Controls gas injection into the well. 0 = off, 100 = full speed.</div>
         <div class="ftitle">Request Body</div>
-        <div class="frow"><span class="fn">pwm</span><span class="ft">integer</span><span class="fd">PWM duty cycle <code>0–255</code></span></div>
-        <div class="codeblock editable" id="cb_airpump" contenteditable="true" spellcheck="false">{
-  <span class="k">"pwm"</span>: <span class="n">128</span>
+        <div class="frow"><span class="fn">value</span><span class="ft">integer</span><span class="fd">Air pump level <code>0–100</code></span></div>
+        <div class="codeblock" id="cb_air" contenteditable="true" spellcheck="false">{
+  "value": 75
 }</div>
-        <button class="btn" onclick="call('POST','/control/air-pump','cb_airpump','r_airpump')">&#9654; Send</button>
-        <div class="resp" id="r_airpump"></div>
+        <button class="btn" onclick="call('POST','/control/air-pump','cb_air','r_air')">&#9654; Send</button>
+        <div class="resp" id="r_air"></div>
       </div>
     </div>
 
-    <!-- Water Pump -->
     <div class="card">
-      <div class="card-hdr">
-        <span class="meth mpost">POST</span>
-        <span class="ep">/control/water-pump</span>
-      </div>
+      <div class="card-hdr"><span class="meth mpost">POST</span><span class="ep">/control/water-pump</span></div>
       <div class="card-body">
-        <div class="desc">Set the water pump speed via PWM. Value 0 = fully off, 255 = full speed. Hardware responds immediately.</div>
+        <div class="desc">Set the water pump (well pressure control) speed. 0 = off, 100 = full speed.</div>
         <div class="ftitle">Request Body</div>
-        <div class="frow"><span class="fn">pwm</span><span class="ft">integer</span><span class="fd">PWM duty cycle <code>0–255</code></span></div>
-        <div class="codeblock editable" id="cb_waterpump" contenteditable="true" spellcheck="false">{
-  <span class="k">"pwm"</span>: <span class="n">128</span>
+        <div class="frow"><span class="fn">value</span><span class="ft">integer</span><span class="fd">Water pump level <code>0–100</code></span></div>
+        <div class="codeblock" id="cb_water" contenteditable="true" spellcheck="false">{
+  "value": 60
 }</div>
-        <button class="btn" onclick="call('POST','/control/water-pump','cb_waterpump','r_waterpump')">&#9654; Send</button>
-        <div class="resp" id="r_waterpump"></div>
+        <button class="btn" onclick="call('POST','/control/water-pump','cb_water','r_water')">&#9654; Send</button>
+        <div class="resp" id="r_water"></div>
       </div>
     </div>
 
-    <!-- Solenoid Valve -->
     <div class="card">
-      <div class="card-hdr">
-        <span class="meth mpost">POST</span>
-        <span class="ep">/control/valve</span>
-      </div>
+      <div class="card-hdr"><span class="meth mpost">POST</span><span class="ep">/control/valve</span></div>
       <div class="card-body">
-        <div class="desc">Open or close the solenoid valve. State is applied instantly to hardware and persisted.</div>
+        <div class="desc">Open or close the solenoid valve. State is persisted and reflected immediately on the dashboard.</div>
         <div class="ftitle">Request Body</div>
         <div class="frow"><span class="fn">state</span><span class="ft">string</span><span class="fd"><code>"open"</code> or <code>"closed"</code></span></div>
-        <div class="codeblock editable" id="cb_valve" contenteditable="true" spellcheck="false">{
-  <span class="k">"state"</span>: <span class="s">"open"</span>
+        <div class="codeblock" id="cb_valve" contenteditable="true" spellcheck="false">{
+  "state": "open"
 }</div>
         <button class="btn" onclick="call('POST','/control/valve','cb_valve','r_valve')">&#9654; Send</button>
         <div class="resp" id="r_valve"></div>
       </div>
     </div>
 
-    <!-- GET current state -->
     <div class="card">
-      <div class="card-hdr">
-        <span class="meth mget">GET</span>
-        <span class="ep">/control/state</span>
-      </div>
+      <div class="card-hdr"><span class="meth mget">GET</span><span class="ep">/control/state</span></div>
       <div class="card-body">
-        <div class="desc">Returns the current commanded state of all actuators — air pump PWM, water pump PWM, and valve state.</div>
+        <div class="desc">Read the current commanded state of all actuators. Hardware should call this on boot to sync before running.</div>
         <div class="codeblock">GET /control/state</div>
         <button class="btn" onclick="call('GET','/control/state',null,'r_state')">&#9654; Fetch</button>
         <div class="resp" id="r_state"></div>
       </div>
     </div>
 
-  </div><!-- /grid -->
+  </div>
 
-  <!-- ── SECTION 2: SENSOR DATA ──────────────────────────────────── -->
+  <!-- SECTION 2: SENSOR DATA -->
   <div class="sec-hdr">2 · Sensor Data</div>
   <div class="grid">
 
-    <!-- POST sensor reading -->
     <div class="card">
-      <div class="card-hdr">
-        <span class="meth mpost">POST</span>
-        <span class="ep">/sensors/reading</span>
-      </div>
+      <div class="card-hdr"><span class="meth mpost">POST</span><span class="ep">/sensors/reading</span></div>
       <div class="card-body">
-        <div class="desc">Submit a sensor reading from hardware. All three sensor values must be provided. Values are stored in the database and reflected live on the dashboard.</div>
+        <div class="desc">Submit a full sensor snapshot from hardware. All 6 fields required. Stored in MongoDB and streamed live to the dashboard.</div>
         <div class="ftitle">Request Body</div>
-        <div class="frow"><span class="fn">flow_rate</span><span class="ft">number</span><span class="fd">Water flow rate <code>0–1000</code></span></div>
-        <div class="frow"><span class="fn">temperature</span><span class="ft">number</span><span class="fd">Temperature <code>0–1000</code></span></div>
-        <div class="frow"><span class="fn">pressure</span><span class="ft">number</span><span class="fd">Pressure <code>0–1000</code></span></div>
-        <div class="codeblock editable" id="cb_sensor" contenteditable="true" spellcheck="false">{
-  <span class="k">"flow_rate"</span>: <span class="n">425.5</span>,
-  <span class="k">"temperature"</span>: <span class="n">312.0</span>,
-  <span class="k">"pressure"</span>: <span class="n">780.3</span>
+        <div class="frow"><span class="fn">voltage</span><span class="ft">number</span><span class="fd">Air pump voltage draw (V) — any value</span></div>
+        <div class="frow"><span class="fn">current</span><span class="ft">number</span><span class="fd">Air pump current draw (A) — any value</span></div>
+        <div class="frow"><span class="fn">air_pressure</span><span class="ft">number</span><span class="fd">Air pump output pressure <code>0–1000</code></span></div>
+        <div class="frow"><span class="fn">water_pressure</span><span class="ft">number</span><span class="fd">Well water pressure near exit <code>0–1000</code></span></div>
+        <div class="frow"><span class="fn">temperature</span><span class="ft">number</span><span class="fd">Well temperature near exit <code>0–1000</code></span></div>
+        <div class="frow"><span class="fn">flow_rate</span><span class="ft">number</span><span class="fd">Flow rate exiting the well <code>0–1000</code></span></div>
+        <div class="codeblock" id="cb_sensor" contenteditable="true" spellcheck="false">{
+  "voltage":       12.4,
+  "current":       2.85,
+  "air_pressure":  640.0,
+  "water_pressure":780.5,
+  "temperature":   312.0,
+  "flow_rate":     425.5
 }</div>
         <button class="btn" onclick="call('POST','/sensors/reading','cb_sensor','r_sensor_post')">&#9654; Send</button>
         <div class="resp" id="r_sensor_post"></div>
       </div>
     </div>
 
-    <!-- GET latest reading -->
     <div class="card">
-      <div class="card-hdr">
-        <span class="meth mget">GET</span>
-        <span class="ep">/sensors/latest</span>
-      </div>
+      <div class="card-hdr"><span class="meth mget">GET</span><span class="ep">/sensors/latest</span></div>
       <div class="card-body">
-        <div class="desc">Returns the single most recent sensor reading from the database.</div>
+        <div class="desc">Returns the most recent sensor snapshot. Returns 404 if no readings exist yet.</div>
         <div class="codeblock">GET /sensors/latest</div>
-        <button class="btn" onclick="call('GET','/sensors/latest',null,'r_sensor_latest')">&#9654; Fetch</button>
-        <div class="resp" id="r_sensor_latest"></div>
+        <button class="btn" onclick="call('GET','/sensors/latest',null,'r_latest')">&#9654; Fetch</button>
+        <div class="resp" id="r_latest"></div>
       </div>
     </div>
 
-    <!-- GET history -->
     <div class="card">
-      <div class="card-hdr">
-        <span class="meth mget">GET</span>
-        <span class="ep">/sensors/history</span>
-      </div>
+      <div class="card-hdr"><span class="meth mget">GET</span><span class="ep">/sensors/history</span></div>
       <div class="card-body">
-        <div class="desc">Returns up to the last 100 sensor readings ordered newest first. Use the optional <code>limit</code> query parameter to request fewer records.</div>
-        <div class="frow"><span class="fn">limit</span><span class="ft">integer?</span><span class="fd">Max records to return, default 100</span></div>
+        <div class="desc">Returns up to the last 100 readings, newest first. Use <code>?limit=N</code> to request fewer.</div>
+        <div class="frow"><span class="fn">limit</span><span class="ft">integer?</span><span class="fd">Max records — default 100, max 100</span></div>
         <div class="codeblock">GET /sensors/history?limit=20</div>
-        <button class="btn" onclick="call('GET','/sensors/history?limit=20',null,'r_sensor_hist')">&#9654; Fetch</button>
-        <div class="resp" id="r_sensor_hist"></div>
+        <button class="btn" onclick="call('GET','/sensors/history?limit=20',null,'r_hist')">&#9654; Fetch</button>
+        <div class="resp" id="r_hist"></div>
       </div>
     </div>
 
-    <!-- DELETE / clear all -->
     <div class="card">
-      <div class="card-hdr">
-        <span class="meth mdel">DELETE</span>
-        <span class="ep">/sensors/clear</span>
-      </div>
+      <div class="card-hdr"><span class="meth mdel">DELETE</span><span class="ep">/sensors/clear</span></div>
       <div class="card-body">
-        <div class="desc">Permanently deletes all sensor readings from the database. Dashboard values reset to zero. This action cannot be undone.</div>
+        <div class="desc">Permanently deletes all sensor readings. Dashboard resets to zero. Cannot be undone.</div>
         <div class="codeblock">DELETE /sensors/clear</div>
         <button class="btn btn-del" onclick="confirmClear()">&#128465; Clear All Readings</button>
-        <div class="resp" id="r_sensor_clear"></div>
+        <div class="resp" id="r_clear"></div>
       </div>
     </div>
 
-  </div><!-- /grid -->
+  </div>
 
-  <!-- ── SECTION 3: HEALTH ───────────────────────────────────────── -->
-  <div class="sec-hdr">3 · Health</div>
+  <!-- SECTION 3: STREAMING -->
+  <div class="sec-hdr">3 · Live Stream (SSE)</div>
   <div class="grid">
     <div class="card">
-      <div class="card-hdr">
-        <span class="meth mget">GET</span>
-        <span class="ep">/health</span>
-      </div>
+      <div class="card-hdr"><span class="meth mget">GET</span><span class="ep">/stream</span></div>
       <div class="card-body">
-        <div class="desc">Returns server status and database connectivity. Use for polling from hardware or monitoring tools.</div>
+        <div class="desc">Server-Sent Events endpoint. The dashboard connects here automatically. Pushes two named events every 2 seconds — <code>sensor</code> and <code>actuator</code>. Use <code>EventSource</code> in the browser or curl to test.</div>
+        <div class="codeblock">GET /stream
+Accept: text/event-stream
+
+# Test with curl:
+curl -N http://localhost:3000/stream</div>
+        <button class="btn" onclick="testSSE()">&#9654; Open Stream</button>
+        <div class="resp" id="r_stream"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr"><span class="meth mget">GET</span><span class="ep">/health</span></div>
+      <div class="card-body">
+        <div class="desc">Returns server status and DB connectivity. Check <code>db</code> field — should be <code>"connected"</code>.</div>
         <div class="codeblock">GET /health</div>
         <button class="btn" onclick="call('GET','/health',null,'r_health')">&#9654; Fetch</button>
         <div class="resp" id="r_health"></div>
@@ -265,42 +225,37 @@ body::-webkit-scrollbar-thumb{background:var(--border);}
     </div>
   </div>
 
-</div><!-- /pg -->
+</div>
 
 <script>
-function base(){return(document.getElementById('cfgBase').value||'https://gas-lift-server.vercel.app').replace(/\/+$/,'');}
+function base(){return(document.getElementById('cfgBase').value||'http://localhost:3000').replace(/\/+$/,'');}
 
 async function call(method,path,bodyId,respId){
   const el=document.getElementById(respId);
-  if(!el)return;
-  el.style.display='block';
-  el.style.color='#8abfd0';
-  el.style.borderColor='rgba(0,212,255,.3)';
+  el.style.display='block';el.style.color='#8abfd0';el.style.borderColor='rgba(0,212,255,.3)';
   el.textContent='⟳ '+method+' '+path+' …';
-  const opts={method,headers:{'Accept':'application/json'}};
-  if(method!=='GET'&&bodyId){
+  const opts={method,headers:{Accept:'application/json'}};
+  if(method!=='GET'&&method!=='DELETE'&&bodyId){
     opts.headers['Content-Type']='application/json';
     const b=document.getElementById(bodyId);
-    if(b){try{opts.body=JSON.stringify(JSON.parse(b.innerText||b.textContent));}catch(e){opts.body=b.innerText||b.textContent;}}
+    try{opts.body=JSON.stringify(JSON.parse(b.innerText||b.textContent));}catch(e){opts.body=b.innerText||b.textContent;}
   }
   const t0=Date.now();
   try{
-    const r=await fetch(base()+path,opts);
-    const ms=Date.now()-t0;
+    const r=await fetch(base()+path,opts);const ms=Date.now()-t0;
     let txt;try{txt=JSON.stringify(await r.json(),null,2);}catch(_){txt=await r.text();}
     el.style.color=r.ok?'#86efac':'#ff6b6b';
     el.style.borderColor=r.ok?'rgba(57,255,20,.3)':'rgba(255,58,58,.4)';
     el.textContent='HTTP '+r.status+' · '+ms+'ms\n\n'+txt;
   }catch(e){
-    el.style.color='#ff6b6b';
-    el.style.borderColor='rgba(255,58,58,.4)';
-    el.textContent='✕ Network error: '+e.message+'\n\nMake sure the API server is running.';
+    el.style.color='#ff6b6b';el.style.borderColor='rgba(255,58,58,.4)';
+    el.textContent='✕ '+e.message+'\n\nCheck the server is running at: '+base();
   }
 }
 
 function confirmClear(){
-  if(!confirm('Delete ALL sensor readings from the database? This cannot be undone.'))return;
-  call('DELETE','/sensors/clear',null,'r_sensor_clear');
+  if(!confirm('Delete ALL sensor readings? This cannot be undone.'))return;
+  call('DELETE','/sensors/clear',null,'r_clear');
 }
 
 async function testConn(){
@@ -309,9 +264,30 @@ async function testConn(){
   try{
     const r=await fetch(base()+'/health',{headers:{Accept:'application/json'}});
     const d=await r.json();
-    if(r.ok){el.style.color='#39ff14';el.textContent='● Connected';}
-    else{el.style.color='#ffaa44';el.textContent='⚠ '+r.status;}
+    if(r.ok){el.style.color='#39ff14';el.textContent='● Connected · DB: '+(d.db||'?');}
+    else{el.style.color='#ffaa44';el.textContent='⚠ HTTP '+r.status;}
   }catch(e){el.style.color='#ff3a3a';el.textContent='✕ Unreachable';}
+}
+
+let sseTest=null;
+function testSSE(){
+  const el=document.getElementById('r_stream');
+  el.style.display='block';el.style.color='#86efac';el.style.borderColor='rgba(57,255,20,.3)';
+  if(sseTest){sseTest.close();sseTest=null;el.textContent='Stream closed.';return;}
+  el.textContent='Connecting to SSE stream…\n';
+  try{
+    sseTest=new EventSource(base()+'/stream');
+    sseTest.addEventListener('sensor',e=>{
+      const d=JSON.parse(e.data);
+      el.textContent='[SENSOR] '+new Date().toLocaleTimeString()+'\n'+JSON.stringify(d,null,2)+'\n\n'+el.textContent.slice(0,400);
+    });
+    sseTest.addEventListener('actuator',e=>{
+      const d=JSON.parse(e.data);
+      el.textContent='[ACTUATOR] '+new Date().toLocaleTimeString()+'\n'+JSON.stringify(d,null,2)+'\n\n'+el.textContent.slice(0,400);
+    });
+    sseTest.onerror=()=>{el.textContent='✕ SSE error\n'+el.textContent;};
+    el.textContent='● Stream open — click button again to close\n\n';
+  }catch(e){el.textContent='✕ '+e.message;}
 }
 </script>
 </body>
