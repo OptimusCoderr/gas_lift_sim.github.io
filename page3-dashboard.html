@@ -583,7 +583,7 @@ const CHARTS = [
       { data:()=>hFlow, col:'#39ff14', label:'Flow (0-1k)',unit:'',    max:1000 },
   ]},
   { id:'ch2', title:'Voltage / Current', series:[
-      { data:()=>hVolt, col:'#fbbf24', label:'Voltage (V)', unit:'V', max:12 },
+      { data:()=>hVolt, col:'#fbbf24', label:'Voltage (V)', unit:'V', max:24 },
       { data:()=>hCurr, col:'#f472b6', label:'Current (A)', unit:'A', max:5  },
   ]},
 ];
@@ -793,7 +793,7 @@ function applyReading(d){
 
   // Left panel sidebar
   const MAP = [
-    ['volt', S.voltage,        12,   'V'],
+    ['volt', S.voltage,        24,   'V'],
     ['curr', S.current,        5,    'A'],
     ['airp', S.air_pressure,   10,   'bar'],
     ['wtrp', S.water_pressure, 10,   'bar'],
