@@ -129,7 +129,27 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.35);}
 /* API INPUT */
 .api-input{width:100%;background:#020810;border:1px solid var(--border);color:var(--accent);font-family:'Share Tech Mono',monospace;font-size:.7rem;padding:5px 8px;border-radius:3px;outline:none;}
 .api-input:focus{border-color:var(--accent);}
-/* RESPONSIVE */
+/* CHART PANE CONTROLS */
+.cpane-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;}
+.cpane-title{font-family:'Orbitron',monospace;font-size:.42rem;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;}
+.cpane-btns{display:flex;gap:3px;flex-shrink:0;}
+.cbtn{font-family:'Orbitron',monospace;font-size:.4rem;letter-spacing:1px;padding:2px 6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;border-radius:2px;transition:all .15s;white-space:nowrap;}
+.cbtn:hover{border-color:var(--accent);color:var(--accent);background:rgba(0,212,255,.07);}
+.cbtn.dl:hover{border-color:var(--accent3);color:var(--accent3);background:rgba(57,255,20,.07);}
+/* FULLSCREEN OVERLAY */
+.fs-overlay{position:fixed;inset:0;z-index:1000;background:#060c14;display:none;flex-direction:column;}
+.fs-overlay.open{display:flex;}
+.fs-header{display:flex;align-items:center;justify-content:space-between;padding:10px 18px;border-bottom:1px solid var(--border);background:#071020;flex-shrink:0;}
+.fs-title{font-family:'Orbitron',monospace;font-size:.75rem;letter-spacing:3px;color:var(--accent);text-transform:uppercase;}
+.fs-actions{display:flex;gap:8px;align-items:center;}
+.fs-btn{font-family:'Orbitron',monospace;font-size:.52rem;letter-spacing:1.5px;padding:5px 12px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;border-radius:3px;transition:all .2s;}
+.fs-btn:hover{border-color:var(--accent);color:var(--accent);}
+.fs-btn.close{border-color:#ff3a3a;color:#ff3a3a;}
+.fs-btn.close:hover{background:#ff3a3a;color:#fff;}
+.fs-btn.export{border-color:var(--accent3);color:var(--accent3);}
+.fs-btn.export:hover{background:var(--accent3);color:var(--bg);}
+.fs-canvas-wrap{flex:1;position:relative;overflow:hidden;padding:12px;}
+#fsCanvas{display:block;width:100%;height:100%;}
 @media(max-width:1080px){:root{--lp-w:236px;--rp-w:218px;}}
 @media(max-width:860px){
   :root{--nav-h:48px;}
@@ -227,7 +247,7 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.35);}
       <!-- API config -->
       <div class="ptitle" style="font-size:.48rem;letter-spacing:2px;">&#9881; API Server</div>
       <div class="prow">
-        <input class="api-input" id="apiBase" type="text" value="https://gas-lift-server.vercel.app" placeholder="https://your-app.vercel.app">
+        <input class="api-input" id="apiBase" type="text" value="https://gas-lift-server.vercel.app" placeholder="https://gas-lift-server.vercel.app">
         <button class="btn" style="width:100%;margin-top:6px;" onclick="reconnect()">&#9654; Connect</button>
       </div>
 
@@ -279,11 +299,52 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.35);}
 
     <!-- Bottom charts: 3 panes -->
     <div class="cbot">
-      <div class="cpane"><div class="cpane-title">Air Pressure / Water Pressure</div><canvas id="ch0"></canvas></div>
-      <div class="cpane"><div class="cpane-title">Temperature / Flow Rate</div><canvas id="ch1"></canvas></div>
-      <div class="cpane"><div class="cpane-title">Voltage / Current</div><canvas id="ch2"></canvas></div>
+      <div class="cpane">
+        <div class="cpane-hdr">
+          <span class="cpane-title">Air Pressure / Water Pressure</span>
+          <div class="cpane-btns">
+            <button class="cbtn dl" onclick="exportCSV(0)" title="Export to CSV">&#8681; CSV</button>
+            <button class="cbtn"    onclick="openFS(0)"    title="Fullscreen">&#x26F6;</button>
+          </div>
+        </div>
+        <canvas id="ch0"></canvas>
+      </div>
+      <div class="cpane">
+        <div class="cpane-hdr">
+          <span class="cpane-title">Temperature / Flow Rate</span>
+          <div class="cpane-btns">
+            <button class="cbtn dl" onclick="exportCSV(1)" title="Export to CSV">&#8681; CSV</button>
+            <button class="cbtn"    onclick="openFS(1)"    title="Fullscreen">&#x26F6;</button>
+          </div>
+        </div>
+        <canvas id="ch1"></canvas>
+      </div>
+      <div class="cpane">
+        <div class="cpane-hdr">
+          <span class="cpane-title">Voltage / Current</span>
+          <div class="cpane-btns">
+            <button class="cbtn dl" onclick="exportCSV(2)" title="Export to CSV">&#8681; CSV</button>
+            <button class="cbtn"    onclick="openFS(2)"    title="Fullscreen">&#x26F6;</button>
+          </div>
+        </div>
+        <canvas id="ch2"></canvas>
+      </div>
     </div>
   </div><!-- /cc -->
+
+  <!-- FULLSCREEN CHART OVERLAY -->
+  <div class="fs-overlay" id="fsOverlay">
+    <div class="fs-header">
+      <span class="fs-title" id="fsTitle">Chart</span>
+      <div class="fs-actions">
+        <button class="fs-btn export" onclick="exportCSV(fsChartIdx)">&#8681; Export CSV</button>
+        <button class="fs-btn close"  onclick="closeFS()">&#x2715; Close</button>
+      </div>
+    </div>
+    <div class="fs-canvas-wrap" id="fsWrap">
+      <canvas id="fsCanvas"></canvas>
+    </div>
+  </div>
 
   <!-- RIGHT PANEL: actuator controls + alarms + log -->
   <div class="sp rp" id="rp">
@@ -366,6 +427,7 @@ const POLL_MS   = 3000;
 let S = { voltage:null, current:null, air_pressure:null, water_pressure:null, temperature:null, flow_rate:null, timestamp:null };
 let ACT = { air_pump_value:0, water_pump_value:0, valve_state:'closed' };
 let logs = [], alarms = [], sseConn = null, fallbackTimer = null;
+let histRows = [];  // kept in sync by renderHistory() — used by CSV export
 
 const CHART_LEN2 = CHART_LEN;
 let hAirP  = new Array(CHART_LEN2).fill(null);
@@ -478,13 +540,13 @@ function draw(){
   const gY2 = rowH*1.15;
   const xs  = [CW/6, CW/2, CW*5/6];
 
-  gauge(xs[0],gY1,gR, S.voltage,       30,  '#fbbf24', 'VOLTAGE',  'V',    null);
-  gauge(xs[1],gY1,gR, S.current,       10,  '#f472b6', 'CURRENT',  'A',    null);
-  gauge(xs[2],gY1,gR, S.air_pressure,  1000,'#00d4ff', 'AIR PRES', '0-1k', 850);
+  gauge(xs[0],gY1,gR, S.voltage,       12,   '#fbbf24', 'VOLTAGE',  'V',     10);
+  gauge(xs[1],gY1,gR, S.current,       5,    '#f472b6', 'CURRENT',  'A',     4);
+  gauge(xs[2],gY1,gR, S.air_pressure,  10,   '#00d4ff', 'AIR PRES', 'bar',   8.5);
 
-  gauge(xs[0],gY2,gR, S.water_pressure,1000,'#a78bfa', 'WATER P',  '0-1k', 850);
-  gauge(xs[1],gY2,gR, S.temperature,   1000,'#ff6b1a', 'TEMP',     '0-1k', 900);
-  gauge(xs[2],gY2,gR, S.flow_rate,     1000,'#39ff14', 'FLOW',     '0-1k', null);
+  gauge(xs[0],gY2,gR, S.water_pressure,10,   '#a78bfa', 'WATER P',  'bar',   8.5);
+  gauge(xs[1],gY2,gR, S.temperature,   50,   '#ff6b1a', 'TEMP',     '°C',    45);
+  gauge(xs[2],gY2,gR, S.flow_rate,     1000, '#39ff14', 'FLOW',     '0-1k',  null);
 
   // Divider
   const divY = gY2 + gR + 14;
@@ -510,43 +572,203 @@ function draw(){
   }
 }
 
-// ── TREND CHARTS ───────────────────────────────────────────────────
-function lineChart2(id, d1, c1, l1, d2, c2, l2){
-  const c=document.getElementById(id); if(!c)return;
-  const p=c.parentElement;
-  const W=p.clientWidth-2, H=p.clientHeight-18;
-  c.width=W; c.height=H;
-  const g=c.getContext('2d');
-  g.clearRect(0,0,W,H);
-  g.fillStyle='rgba(4,10,18,.5)';g.fillRect(0,0,W,H);
-  const pd=8,cW=W-pd*2,cH=H-pd*2;
+// ── CHART DEFINITIONS ─────────────────────────────────────────────
+const CHARTS = [
+  { id:'ch0', title:'Air Pressure / Water Pressure', series:[
+      { data:()=>hAirP, col:'#00d4ff', label:'Air Pres (bar)', unit:'bar', max:10 },
+      { data:()=>hWtrP, col:'#a78bfa', label:'Water Pres (bar)', unit:'bar', max:10 },
+  ]},
+  { id:'ch1', title:'Temperature / Flow Rate', series:[
+      { data:()=>hTemp, col:'#ff6b1a', label:'Temp (°C)',  unit:'°C',  max:50   },
+      { data:()=>hFlow, col:'#39ff14', label:'Flow (0-1k)',unit:'',    max:1000 },
+  ]},
+  { id:'ch2', title:'Voltage / Current', series:[
+      { data:()=>hVolt, col:'#fbbf24', label:'Voltage (V)', unit:'V', max:12 },
+      { data:()=>hCurr, col:'#f472b6', label:'Current (A)', unit:'A', max:5  },
+  ]},
+];
 
-  function drawSeries(data,col){
-    const valid=data.filter(v=>v!=null);
-    if(valid.length<2){g.fillStyle='rgba(74,112,144,.3)';g.font='9px Rajdhani';g.textAlign='center';g.fillText('No data',W/2,H/2);return;}
-    const mn=Math.min(...valid),mx=Math.max(...valid),rng=Math.max(mx-mn,0.01);
-    const pts=data.map((v,i)=>({x:pd+(i/(data.length-1))*cW,y:v==null?null:pd+cH-((v-mn)/rng)*cH}));
-    g.beginPath();let st=false;
-    pts.forEach(p=>{if(p.y==null){st=false;return;}st?g.lineTo(p.x,p.y):g.moveTo(p.x,p.y);st=true;});
-    g.strokeStyle=col;g.lineWidth=1.6;g.stroke();
-    const lp=[...pts].reverse().find(p=>p.y!=null);
-    if(lp){g.beginPath();g.arc(lp.x,lp.y,2.5,0,Math.PI*2);g.fillStyle=col;g.shadowColor=col;g.shadowBlur=5;g.fill();g.shadowBlur=0;}
+// Draw one chart definition onto an arbitrary canvas context + dimensions
+function renderChart(g, W, H, chartIdx, fsMode){
+  const ch = CHARTS[chartIdx];
+  g.clearRect(0,0,W,H);
+  g.fillStyle = fsMode ? '#060c14' : 'rgba(4,10,18,.5)';
+  g.fillRect(0,0,W,H);
+
+  const pd = fsMode ? 40 : 8;
+  const cW = W-pd*2, cH = H-pd*2;
+
+  // Y-axis grid & labels (use first series max as scale reference)
+  const yMax = ch.series[0].max;
+  const gridLines = fsMode ? 8 : 4;
+  for(let i=0;i<=gridLines;i++){
+    const y = pd+cH-(i/gridLines)*cH;
+    g.strokeStyle='rgba(26,58,92,.3)'; g.lineWidth=1; g.setLineDash([2,4]);
+    g.beginPath(); g.moveTo(pd,y); g.lineTo(W-pd,y); g.stroke(); g.setLineDash([]);
+    g.fillStyle='rgba(74,112,144,.5)';
+    g.font=(fsMode?'11':'8')+'px Share Tech Mono';
+    g.textAlign='right';
+    const val = yMax*(i/gridLines);
+    g.fillText(val%1===0?val:val.toFixed(1), pd-3, y+3);
   }
-  drawSeries(d1,c1); drawSeries(d2,c2);
+  g.textAlign='left';
+
+  // X-axis time labels in fullscreen
+  if(fsMode){
+    const now = Date.now();
+    const step = Math.floor(CHART_LEN/6);
+    for(let i=0;i<=6;i++){
+      const x = pd+(i/6)*cW;
+      const secsAgo = (CHART_LEN - i*(CHART_LEN/6)) * (POLL_MS/1000);
+      const d = new Date(now - secsAgo*1000);
+      const label = d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0')+':'+d.getSeconds().toString().padStart(2,'0');
+      g.strokeStyle='rgba(26,58,92,.2)'; g.lineWidth=1; g.setLineDash([2,4]);
+      g.beginPath(); g.moveTo(x,pd); g.lineTo(x,pd+cH); g.stroke(); g.setLineDash([]);
+      g.fillStyle='rgba(74,112,144,.5)'; g.font='10px Share Tech Mono'; g.textAlign='center';
+      g.fillText(label, x, pd+cH+14);
+    }
+    g.textAlign='left';
+  }
+
+  // Draw each series
+  ch.series.forEach(({data, col, max:sMax})=>{
+    const arr = data();
+    const valid = arr.filter(v=>v!=null);
+    if(valid.length<2) return;
+    // Scale each series independently against its own max
+    const pts = arr.map((v,i)=>({
+      x: pd+(i/(arr.length-1))*cW,
+      y: v==null ? null : pd+cH-(Math.min(1,Math.max(0,v/sMax))*cH),
+      v
+    }));
+
+    // Area fill
+    const aG = g.createLinearGradient(0,pd,0,pd+cH);
+    aG.addColorStop(0, col+'22'); aG.addColorStop(1,'rgba(0,0,0,0)');
+    g.beginPath(); let st=false;
+    pts.forEach(p=>{if(p.y==null){st=false;return;}st?g.lineTo(p.x,p.y):g.moveTo(p.x,p.y);st=true;});
+    const validPts=pts.filter(p=>p.y!=null);
+    if(validPts.length>1){const lv=validPts[validPts.length-1],fv=validPts[0];g.lineTo(lv.x,pd+cH);g.lineTo(fv.x,pd+cH);}
+    g.closePath(); g.fillStyle=aG; g.fill();
+
+    // Line
+    g.beginPath(); st=false;
+    pts.forEach(p=>{if(p.y==null){st=false;return;}st?g.lineTo(p.x,p.y):g.moveTo(p.x,p.y);st=true;});
+    g.strokeStyle=col; g.lineWidth=fsMode?2:1.6; g.stroke();
+
+    // Last dot + value
+    const lp=[...pts].reverse().find(p=>p.y!=null);
+    if(lp){
+      g.beginPath(); g.arc(lp.x,lp.y,fsMode?4:2.5,0,Math.PI*2);
+      g.fillStyle=col; g.shadowColor=col; g.shadowBlur=6; g.fill(); g.shadowBlur=0;
+      g.fillStyle=col; g.font=`bold ${fsMode?'13':'8'}px Share Tech Mono`;
+      g.textAlign='right';
+      g.fillText(lp.v.toFixed(lp.v<10?2:1), W-pd, pd+(fsMode?16:9));
+      g.textAlign='left';
+    }
+  });
 
   // Legend
-  [[c1,l1],[c2,l2]].forEach(([col,lbl],i)=>{
-    const x=pd+i*(cW/2),y=pd+8;
-    g.fillStyle=col;g.beginPath();g.rect(x,y-4,8,4);g.fill();
-    g.fillStyle='rgba(74,112,144,.6)';g.font='7px Share Tech Mono';g.textAlign='left';
-    g.fillText(lbl,x+10,y);
+  ch.series.forEach(({col,label},i)=>{
+    const lx = pd + i*(cW/2);
+    const ly = pd + (fsMode?18:8);
+    g.fillStyle=col; g.beginPath(); g.rect(lx,ly-(fsMode?5:4),fsMode?14:8,fsMode?5:4); g.fill();
+    g.fillStyle='rgba(74,112,144,.7)';
+    g.font=`${fsMode?'12':'7'}px Share Tech Mono`;
+    g.textAlign='left';
+    g.fillText(label, lx+(fsMode?18:10), ly);
   });
 }
 
 function drawCharts(){
-  lineChart2('ch0', hAirP,'#00d4ff','AirP', hWtrP,'#a78bfa','WtrP');
-  lineChart2('ch1', hTemp,'#ff6b1a','Temp', hFlow,'#39ff14','Flow');
-  lineChart2('ch2', hVolt,'#fbbf24','Volt', hCurr,'#f472b6','Curr');
+  CHARTS.forEach((_,i)=>{
+    const c = document.getElementById('ch'+i); if(!c)return;
+    const p = c.parentElement;
+    const W = p.clientWidth-2, H = p.clientHeight-22;
+    c.width=W; c.height=H;
+    renderChart(c.getContext('2d'), W, H, i, false);
+  });
+  if(fsOpen) renderFS();
+}
+
+// ── FULLSCREEN ─────────────────────────────────────────────────────
+let fsOpen = false, fsChartIdx = 0;
+
+function openFS(idx){
+  fsChartIdx = idx;
+  fsOpen     = true;
+  document.getElementById('fsTitle').textContent = CHARTS[idx].title;
+  document.getElementById('fsOverlay').classList.add('open');
+  renderFS();
+  log('Chart fullscreen: '+CHARTS[idx].title,'');
+}
+
+function closeFS(){
+  fsOpen = false;
+  document.getElementById('fsOverlay').classList.remove('open');
+}
+
+function renderFS(){
+  const wrap = document.getElementById('fsWrap');
+  const fc   = document.getElementById('fsCanvas');
+  const dpr  = window.devicePixelRatio||1;
+  const W    = wrap.clientWidth  - 24;
+  const H    = wrap.clientHeight - 24;
+  fc.width   = Math.round(W*dpr); fc.height = Math.round(H*dpr);
+  fc.style.width = W+'px'; fc.style.height = H+'px';
+  const g = fc.getContext('2d');
+  g.setTransform(1,0,0,1,0,0); g.scale(dpr,dpr);
+  renderChart(g, W, H, fsChartIdx, true);
+}
+
+// Keyboard: Escape closes fullscreen
+document.addEventListener('keydown', e=>{ if(e.key==='Escape'&&fsOpen) closeFS(); });
+
+// ── CSV EXPORT ─────────────────────────────────────────────────────
+// Exports the in-memory chart history arrays for the chosen chart.
+// Uses the full histRows array from the DB if available for richer data.
+function exportCSV(chartIdx){
+  const ch = CHARTS[chartIdx];
+  const now = new Date();
+
+  // Use histRows (DB data) if available — richer than the 60-point ring buffers
+  let rows = [];
+  if(histRows && histRows.length){
+    // Build rows from the full history, newest last
+    const sorted = [...histRows].reverse();
+    rows = sorted.map(d=>{
+      const ts = d.timestamp ? new Date(d.timestamp).toISOString() : now.toISOString();
+      if(chartIdx===0) return [ts, (+d.air_pressure).toFixed(3), (+d.water_pressure).toFixed(3)];
+      if(chartIdx===1) return [ts, (+d.temperature).toFixed(3),  (+d.flow_rate).toFixed(3)];
+      if(chartIdx===2) return [ts, (+d.voltage).toFixed(3),      (+d.current).toFixed(3)];
+    });
+  } else {
+    // Fall back to ring buffers — synthesise timestamps
+    const arrays = chartIdx===0 ? [hAirP, hWtrP] : chartIdx===1 ? [hTemp, hFlow] : [hVolt, hCurr];
+    const len = arrays[0].length;
+    for(let i=0;i<len;i++){
+      const secsAgo = (len-1-i) * (POLL_MS/1000);
+      const ts = new Date(now - secsAgo*1000).toISOString();
+      const v0 = arrays[0][i], v1 = arrays[1][i];
+      rows.push([ts, v0!=null?v0.toFixed(3):'', v1!=null?v1.toFixed(3):'']);
+    }
+  }
+
+  // Build CSV
+  const headers = ['timestamp', ch.series[0].label, ch.series[1].label];
+  const csvLines = [headers.join(','), ...rows.map(r=>r.join(','))];
+  const csv = csvLines.join('\r\n');
+
+  // Trigger download
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  const fname = `pumpctrl_${ch.title.replace(/\s*\/\s*/g,'-').replace(/\s+/g,'_').toLowerCase()}_${now.toISOString().slice(0,19).replace(/:/g,'-')}.csv`;
+  a.href = url; a.download = fname;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  log('CSV exported: '+fname,'ok');
 }
 
 // ── APPLY DATA ──────────────────────────────────────────────────────
@@ -571,11 +793,11 @@ function applyReading(d){
 
   // Left panel sidebar
   const MAP = [
-    ['volt', S.voltage,        30,   'V'],
-    ['curr', S.current,        10,   'A'],
-    ['airp', S.air_pressure,   1000, ''],
-    ['wtrp', S.water_pressure, 1000, ''],
-    ['temp', S.temperature,    1000, ''],
+    ['volt', S.voltage,        12,   'V'],
+    ['curr', S.current,        5,    'A'],
+    ['airp', S.air_pressure,   10,   'bar'],
+    ['wtrp', S.water_pressure, 10,   'bar'],
+    ['temp', S.temperature,    50,   '°C'],
     ['flow', S.flow_rate,      1000, ''],
   ];
   MAP.forEach(([k,v,mx,u])=>{
@@ -624,6 +846,7 @@ function applyActuator(d){
 function setBadge(id,text,cls){const el=document.getElementById(id);el.textContent=text;el.className='abadge '+cls;}
 
 function renderHistory(rows){
+  histRows = rows;  // keep in sync for CSV export
   document.getElementById('hcount').textContent=rows.length;
   const tb=document.getElementById('hist_body');
   if(!rows.length){tb.innerHTML='<tr><td colspan="7" style="color:var(--muted);text-align:center;padding:12px 0;font-size:.75rem">No data yet</td></tr>';return;}
@@ -757,13 +980,13 @@ async function clearReadings(){
 // ── ALARMS ──────────────────────────────────────────────────────────
 function checkAlarms(){
   alarms=[];
-  if(S.air_pressure  !=null&&S.air_pressure   >850)alarms.push({t:'crit',m:`Air pressure HIGH: ${S.air_pressure.toFixed(1)}`});
-  if(S.water_pressure!=null&&S.water_pressure  >850)alarms.push({t:'crit',m:`Water pressure HIGH: ${S.water_pressure.toFixed(1)}`});
-  if(S.temperature   !=null&&S.temperature     >900)alarms.push({t:'crit',m:`Temperature HIGH: ${S.temperature.toFixed(1)}`});
-  if(S.voltage       !=null&&S.voltage         >25) alarms.push({t:'warn',m:`Voltage HIGH: ${S.voltage.toFixed(1)} V`});
-  if(S.current       !=null&&S.current         >8)  alarms.push({t:'warn',m:`Current HIGH: ${S.current.toFixed(2)} A`});
-  if(S.flow_rate     !=null&&S.flow_rate       <50&&S.flow_rate>0)alarms.push({t:'warn',m:`Flow rate LOW: ${S.flow_rate.toFixed(1)}`});
-  if(ACT.air_pump_value===0&&ACT.water_pump_value===0)alarms.push({t:'warn',m:'Both pumps are OFF'});
+  if(S.air_pressure  !=null&&S.air_pressure   >8.5) alarms.push({t:'crit',m:`Air pressure HIGH: ${S.air_pressure.toFixed(2)} bar`});
+  if(S.water_pressure!=null&&S.water_pressure  >8.5) alarms.push({t:'crit',m:`Water pressure HIGH: ${S.water_pressure.toFixed(2)} bar`});
+  if(S.temperature   !=null&&S.temperature     >45)  alarms.push({t:'crit',m:`Temperature HIGH: ${S.temperature.toFixed(1)} °C`});
+  if(S.voltage       !=null&&S.voltage         >10)  alarms.push({t:'warn',m:`Voltage HIGH: ${S.voltage.toFixed(1)} V`});
+  if(S.current       !=null&&S.current         >4)   alarms.push({t:'warn',m:`Current HIGH: ${S.current.toFixed(2)} A`});
+  if(S.flow_rate     !=null&&S.flow_rate       <50&&S.flow_rate>0) alarms.push({t:'warn',m:`Flow rate LOW: ${S.flow_rate.toFixed(1)}`});
+  if(ACT.air_pump_value===0&&ACT.water_pump_value===0) alarms.push({t:'warn',m:'Both pumps are OFF'});
 
   const al=document.getElementById('alarmList');
   const strip=document.getElementById('alarmStrip');
